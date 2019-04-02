@@ -10,7 +10,7 @@
 #' This reduces the memory usage and enables more efficient processing by algorithms that are aware of this redundancy.
 #'
 #' @section Constructor:
-#' \code{IndexedRelations(x, stores=NULL)} will return a IndexedRelations object given a list or data.frame of features in \code{x}.
+#' \code{IndexedRelations(x, features=NULL)} will return a IndexedRelations object given a list or data.frame of features in \code{x}.
 #' Features can be represented by any \linkS4class{Vector}-like data type in each element of \code{x}.
 #' Parallel elements of \code{x} represent partners involved in a single relationship, i.e.,
 #' the first element of \code{x[[1]]} is in a relationship with the first element of \code{x[[2]]} and so on.
@@ -41,7 +41,7 @@
 #' \item{\code{featureSetNames(x)}:}{Returns a character vector of names used for each feature set.
 #' This may be \code{NULL} if the feature sets are not named.}
 #' \item{\code{mapping(x)}:}{Returns an integer vector specifying the mapping from partners to feature sets.
-#' The indices of the \code{i}th partner point towards \code{feature(x, mapping(x)[i])}.}
+#' The indices of the \code{i}th partner point towards \code{featureSets(x)[[mapping(x)[i]]]}.}
 #' }
 #'
 #' @section Setter methods:
@@ -53,7 +53,7 @@
 #' \item{\code{partnerNames(x) <- value}:}{Replaces the names used for each partner with \code{value}, a character vector or \code{NULL}.}
 #' \item{\code{partner(x, type, id=FALSE) <- value}:}{If \code{id=TRUE}, this replaces the indices for the partner specified by \code{type} with new integer indices in \code{value}.
 #' If \code{id=TRUE}, \code{value} is assumed to contain the partners as features,
-#' and replacement is performed while appending new features to the corresponding feature set in \code{features(x)}.
+#' and replacement is performed while appending new features to the corresponding feature set in \code{featureSets(x)}.
 #' \code{type} can be an integer scalar or a string if the partners are named.}
 #' \item{\code{featureSets(x) <- value}:}{Replaces the feature sets with \code{value}.
 #' \code{value} should have the same number of feature sets as \code{featureSets(x)},
@@ -63,16 +63,73 @@
 #'
 #' @author Aaron Lun
 #' @examples
+#' #####################
+#' #### Constructor ####
+#' #####################
+#'
 #' library(GenomicRanges)
-#' gr <- GRanges("chrA", IRanges(1:10*10, 1:10*100+10))
+#' promoters <- GRanges("chrA", IRanges(1:10*20, 1:10*20+10))
+#' enhancers <- GRanges("chrA", IRanges(1:20*10, 1:20*10+10))
 #'
-#' # Different constructor choices.
-#' rel <- IndexedRelations(list(first=gr(
+#' # You can construct from supplying features:
+#' partner1 <- sample(length(promoters), 100, replace=TRUE)
+#' partner2 <- sample(length(enhancers), 100, replace=TRUE)
+#' rel <- IndexedRelations(
+#'     list(
+#'         promoter=promoters[partner1],
+#'         enhacner=enhancers[partner2]
+#'     )
+#' )
+#' 
+#' # But it's more efficient to just supply indices, where possible:
+#' rel <- IndexedRelations(
+#'     list(promoter=partner1, enhancer=partner2),
+#'     features=list(promoters=promoters, enhancers=enhancers)
+#' )
 #'
-#' @export
-#' @importFrom BiocGenerics match
-#' @importFrom S4Vectors DataFrame
-#' @aliases IndexedRelations-class
+#' IndexedRelations(rel) # does nothing.
+#' 
+#' #################
+#' #### Getters ####
+#' #################
+#'
+#' partners(rel)
+#' partnerNames(rel)
+#' partner(rel, "promoter")
+#' partner(rel, 1, id=TRUE)
+#' partnerNames(rel)
+#' 
+#' featureSets(rel)
+#' featureSetNames(rel)
+#'
+#' mapping(rel) # always seq_along(featureSets(rel)) for IndexedRelations.
+#'
+#' #################
+#' #### Setters ####
+#' #################
+#' 
+#' rel2 <- rel
+#' partners(rel2)$promoter <- rev(partners(rel2)$promoter)
+#' partners(rel2)
+#'
+#' partnerNames(rel2) <- c("P", "E")
+#' partnerNames(rel2)
+#'
+#' partner(rel2, "P") <- rev(partner(rel2, "P")) # by feature
+#' partners(rel2)
+#'
+#' partner(rel2, "E", id=TRUE) <- rev(partner(rel2, "E", id=TRUE)) # by ID
+#' partners(rel2)
+#' 
+#' featureSets(rel2)$promoters <- resize(featureSets(rel2)$promoters, width=25)
+#' featureSets(rel2)$promoters
+#' 
+#' featureSetNames(rel2) <- c("Pset", "Eset")
+#' featureSetNames(rel2)
+#' 
+#' @name IndexedRelations
+#' @docType class
+#' @aliases IndexedRelations-class IndexedRelations
 #' @aliases partners partners,IndexedRelations-method partners<- partners<-,IndexedRelations-method
 #' @aliases partnerNames partnerNames,IndexedRelations-method partnerNames<- partnerNames<-,IndexedRelations-method
 #' @aliases partner partner,IndexedRelations-method partner<- partner<-,IndexedRelations-method
@@ -80,12 +137,18 @@
 #' @aliases featureNames featureNames,IndexedRelations-method featureNames<- featureNames<-,IndexedRelations-method
 #' @aliases feature feature,IndexedRelations-method feature<- feature<-,IndexedRelations-method
 #' @aliases mapping mapping,IndexedRelations-method
+NULL
+
+#' @export
+#' @importFrom BiocGenerics match
+#' @importFrom S4Vectors DataFrame
+#' @importClassesFrom S4Vectors List
 IndexedRelations <- function(x, features=NULL) {
     if (is(x, "IndexedRelations")) {
         return(x)
     }
 
-    if (!is.null(features)) {
+    if (is.null(features)) {
         features <- x
         for (i in seq_along(features)) {
             current <- unique(x[[i]])
@@ -97,7 +160,7 @@ IndexedRelations <- function(x, features=NULL) {
     mapping <- seq_along(x)
     x <- lapply(x, as.integer)
     x <- lapply(x, unname)
-    new("IndexedRelations", partners=do.call(DataFrame, x), features=features, mapping=mapping)
+    new("IndexedRelations", partners=do.call(DataFrame, x), features=as(features, "List"), mapping=mapping)
 }
 
 .oob <- function(indices, N) {
@@ -109,13 +172,13 @@ setValidity2("IndexedRelations", function(object) {
     msg <- character(0)
     rlt <- partners(object)
     map <- mapping(object)
-    itr <- features(object)
+    itr <- featureSets(object)
 
     # Checking mapping.
-    if (length(mapping)!=ncol(rlt)) {
+    if (length(map)!=ncol(rlt)) {
         msg <- c(msg, "length of 'mapping' should be the same as 'ncol(partners)'")
     } 
-    if (.oob(mapping, length(itr))) {
+    if (.oob(map, length(itr))) {
         msg <- c(msg, "out-of-bounds 'mapping' indices")
     }
 
@@ -131,7 +194,7 @@ setValidity2("IndexedRelations", function(object) {
             msg <- c(msg, sprintf("column %i of 'partners' is not integer", i))
         }
 
-        cur.store <- itr[[mapping[i]]]
+        cur.store <- itr[[map[i]]]
         if (.oob(current, length(cur.store))) {
             msg <- c(msg, sprintf("column %i of 'partners' contains out-of-bounds indices", i))
         }
@@ -167,8 +230,8 @@ setMethod("partner", "IndexedRelations", function(x, type, id=FALSE) {
         return(ids)
     }
 
-    type <- .map2store(x, type)
-    cur.store <- feature(x, type)
+    ftype <- .map2store(x, type)
+    cur.store <- featureSets(x)[[ftype]]
     cur.store[ids]
 })
 
@@ -186,10 +249,10 @@ setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
 
 #' @export
 #' @importFrom BiocGenerics match
-setReplaceMethod("partner", "IndexedRelations", function(x, type, id=FALSE, value) {
+setReplaceMethod("partner", "IndexedRelations", function(x, type, id=FALSE, ..., value) {
     if (!id) { 
-        type <- .map2store(x, type)
-        cur.store <- featureSets(x)[[type]]
+        ftype <- .map2store(x, type)
+        cur.store <- featureSets(x)[[ftype]]
         m <- match(value, cur.store)
 
         lost <- is.na(m)
