@@ -1,0 +1,17 @@
+Package: IndexedRelations 
+Version: 0.98.0
+Date: 2019-04-01
+Title: Representing Indexed Relationships Between Features
+Authors@R: person("Aaron", "Lun", role = c("aut", "cre"), 
+    email = "infinite.monkeys.with.keyboards@gmail.com")
+Depends: BiocGenerics
+Imports: S4Vectors, methods
+Suggests: testthat, knitr, rmarkdown, BiocStyle
+LinkingTo: Rcpp
+biocViews: Infrastructure, DataRepresentation
+Description: Provides the IndexedRelations class and its derivatives
+    for representing and manipulating 'omics relationships in a
+    memory-efficient format based on indices.
+License: GPL-3
+VignetteBuilder: knitr
+RoxygenNote: 6.1.1
