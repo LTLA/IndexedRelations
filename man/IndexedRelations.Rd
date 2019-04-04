@@ -72,6 +72,12 @@ and each set in \code{value} should be at least as long as the set that it repla
 }
 }
 
+\section{Combining and subsetting}{
+
+An IndexedRelations instance behaves like a vector in terms of subsetting and combining.
+Specifically, it behaves like any other one-dimensional \linkS4class{Vector} subclass.
+}
+
 \examples{
 #####################
 #### Constructor ####
@@ -134,8 +140,18 @@ partners(rel2)
 featureSets(rel2)$promoters <- resize(featureSets(rel2)$promoters, width=25)
 featureSets(rel2)$promoters
 
+featureSetNames(rel2) <- c("Pset", "Eset")
 featureSetNames(rel2)
-featureSetNames(rel2)
+
+##################################
+#### Subsetting and combining ####
+##################################
+
+c(rel, rel)
+rel[1:5]
+rel3 <- rel
+rel3[1:10] <- rel[10:1]
+rel3
 
 }
 \author{

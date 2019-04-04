@@ -61,6 +61,10 @@
 #' \item{\code{featureSetNames(x)}:}{Replaces the names used for each feature set with \code{value}, a character vector or \code{NULL}.}
 #' }
 #'
+#' @section Combining and subsetting:
+#' An IndexedRelations instance behaves like a vector in terms of subsetting and combining.
+#' Specifically, it behaves like any other one-dimensional \linkS4class{Vector} subclass.
+#'
 #' @author Aaron Lun
 #' @examples
 #' #####################
@@ -126,6 +130,16 @@
 #' 
 #' featureSetNames(rel2) <- c("Pset", "Eset")
 #' featureSetNames(rel2)
+#'
+#' ##################################
+#' #### Subsetting and combining ####
+#' ##################################
+#'
+#' c(rel, rel)
+#' rel[1:5]
+#' rel3 <- rel
+#' rel3[1:10] <- rel[10:1]
+#' rel3
 #' 
 #' @name IndexedRelations
 #' @docType class
@@ -206,9 +220,9 @@ setValidity2("IndexedRelations", function(object) {
     return(TRUE) 
 })
 
-##################################
+#################################
 # Getters and setters: partners #
-##################################
+#################################
 
 .map2store <- function(x, type) {
     if (is.character(type)) {
@@ -270,9 +284,9 @@ setReplaceMethod("partner", "IndexedRelations", function(x, type, id=FALSE, ...,
     x
 })
 
-####################################
+#################################
 # Getters and setters: features #
-####################################
+#################################
 
 #' @export
 setMethod("featureSets", "IndexedRelations", function(x) x@features)
@@ -296,4 +310,16 @@ setReplaceMethod("featureSetNames", "IndexedRelations", function(x, value) {
 # Getters: mapping #
 ####################
 
+#' @export
 setMethod("mapping", "IndexedRelations", function(x) x@mapping)
+
+################################
+# Subset and combining methods #
+################################
+
+#' @export
+#' @importFrom S4Vectors parallelSlotNames
+setMethod("parallelSlotNames", "IndexedRelations", function(x) 
+    c("partners", callNextMethod()) # EASY!
+)
+
