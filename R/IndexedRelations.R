@@ -151,6 +151,8 @@
 #' @aliases featureNames featureNames,IndexedRelations-method featureNames<- featureNames<-,IndexedRelations-method
 #' @aliases feature feature,IndexedRelations-method feature<- feature<-,IndexedRelations-method
 #' @aliases mapping mapping,IndexedRelations-method
+#' @aliases parallelSlotNames,IndexedRelations-method
+#' @aliases show,IndexedRelations-method
 NULL
 
 #' @export
@@ -228,7 +230,7 @@ setValidity2("IndexedRelations", function(object) {
     if (is.character(type)) {
         type <- match(type, partnerNames(x))
     }
-    type
+    mapping(x)[type]
 }
 
 #' @export
@@ -323,3 +325,50 @@ setMethod("parallelSlotNames", "IndexedRelations", function(x)
     c("partners", callNextMethod()) # EASY!
 )
 
+########
+# show #
+########
+
+#' @export
+#' @importFrom methods show
+#' @importFrom S4Vectors mcols metadata
+setMethod("show", "IndexedRelations", function(object) {
+    N <- length(object)
+    cat(sprintf("%s containing %i relation%s\n", class(object), N, if (N==1L) "" else "s"))
+
+    meta <- mcols(object)
+    nmeta <- if (is.null(meta)) 0 else ncol(meta)    
+    meta.names <- colnames(meta)
+    if (nmeta > 3) meta.names <- c(head(meta.names, 3), "...")
+    meta.names <- if (nmeta) paste0(vapply(meta.names, deparse, FUN.VALUE=""), collapse=" ") else ""
+    cat(sprintf("mcols names(%i): %s\n", nmeta, meta.names))
+
+    meta <- metadata(object)
+    nmeta <- length(meta)
+    meta.names <- names(meta)
+    if (nmeta > 3) meta.names <- c(head(meta.names, 3), "...")
+    meta.names <- if (nmeta) paste0(vapply(meta.names, deparse, FUN.VALUE=""), collapse=" ") else ""
+    cat(sprintf("metadata names(%i): %s\n", nmeta, meta.names))
+
+    p <- partners(object)
+    pn <- partnerNames(object)
+    fn <- featureSetNames(object)
+
+    for (i in seq_len(ncol(p))) {
+        cat("\n")
+        pname <- sprintf("Partner %i", i)
+        if (!is.null(pn)) { pname <- paste0(pname, " (", deparse(pn[i]), ")") }
+
+        j <- .map2store(object, i)
+        fname <- sprintf("from feature set %i", j)
+        if (!is.null(fn)) { fname <- paste0(fname, " (", deparse(fn[j]), ")") }
+        cat(paste0(pname, " ", fname, "\n"))
+
+        cur.p <- head(p[,i])
+        cur.store <- featureSets(object)[[j]]
+        cur.p <- cur.store[cur.p]
+        X <- capture.output(show(cur.p))
+        X <- sprintf("head> %s", X)
+        cat(X, sep="\n")
+    }
+})
