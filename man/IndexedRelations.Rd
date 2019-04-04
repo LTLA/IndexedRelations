@@ -78,6 +78,11 @@ An IndexedRelations instance behaves like a vector in terms of subsetting and co
 Specifically, it behaves like any other one-dimensional \linkS4class{Vector} subclass.
 }
 
+\section{Miscellaneous}{
+
+\code{show(x)} will show information about an IndexedRelations \code{x}, including a preview of the \code{\link{head}} relationships.
+}
+
 \examples{
 #####################
 #### Constructor ####

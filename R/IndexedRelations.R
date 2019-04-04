@@ -64,6 +64,9 @@
 #' @section Combining and subsetting:
 #' An IndexedRelations instance behaves like a vector in terms of subsetting and combining.
 #' Specifically, it behaves like any other one-dimensional \linkS4class{Vector} subclass.
+#' 
+#' @section Miscellaneous:
+#' \code{show(x)} will show information about an IndexedRelations \code{x}, including a preview of the \code{\link{head}} relationships.
 #'
 #' @author Aaron Lun
 #' @examples
@@ -332,6 +335,7 @@ setMethod("parallelSlotNames", "IndexedRelations", function(x)
 #' @export
 #' @importFrom methods show
 #' @importFrom S4Vectors mcols metadata
+#' @importFrom utils head capture.output
 setMethod("show", "IndexedRelations", function(object) {
     N <- length(object)
     cat(sprintf("%s containing %i relation%s\n", class(object), N, if (N==1L) "" else "s"))
@@ -368,7 +372,7 @@ setMethod("show", "IndexedRelations", function(object) {
         cur.store <- featureSets(object)[[j]]
         cur.p <- cur.store[cur.p]
         X <- capture.output(show(cur.p))
-        X <- sprintf("head> %s", X)
+        X <- sprintf("head| %s", X)
         cat(X, sep="\n")
     }
 })
