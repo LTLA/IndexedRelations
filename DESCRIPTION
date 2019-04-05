@@ -4,9 +4,9 @@ Date: 2019-04-01
 Title: Representing Indexed Relationships Between Features
 Authors@R: person("Aaron", "Lun", role = c("aut", "cre"), 
     email = "infinite.monkeys.with.keyboards@gmail.com")
-Depends: BiocGenerics
-Imports: S4Vectors, methods
-Suggests: testthat, knitr, rmarkdown, BiocStyle
+Depends: S4Vectors
+Imports: BiocGenerics, methods, utils
+Suggests: testthat, knitr, rmarkdown, BiocStyle, GenomicRanges
 LinkingTo: Rcpp
 biocViews: Infrastructure, DataRepresentation
 Description: Provides the IndexedRelations class and its derivatives
