@@ -16,17 +16,23 @@ This reduces the memory usage and enables more efficient processing by algorithm
 }
 \section{Constructor}{
 
-\code{IndexedRelations(x, features=NULL)} will return a IndexedRelations object given a list or data.frame of features in \code{x}.
-Features can be represented by any \linkS4class{Vector}-like data type in each element of \code{x}.
-Parallel elements of \code{x} represent partners involved in a single relationship, i.e.,
-the first element of \code{x[[1]]} is in a relationship with the first element of \code{x[[2]]} and so on.
-Thus, all elements of \code{x} should be of the same length.
+\code{IndexedRelations(x, featureSets=NULL, mapping=NULL)} will return a IndexedRelations object given a list or data.frame of partners in \code{x}.
 
-If \code{features} is specified, this should contain a list of feature sets for each type of feature.
-In this case, \code{x} should only contain integer indices.
+Partners can be represented by any \linkS4class{Vector}-like data type in each element of \code{x}.
+Parallel Vectors in \code{x} represent partners involved in a single relationship, i.e.,
+the first element of \code{x[[1]]} is in a relationship with the first element of \code{x[[2]]} and so on.
+Thus, all partner vectors in \code{x} should be of the same length.
+
+If \code{featureSets} is specified, this should contain a list of feature sets for each type of feature.
+Again, any Vector-like data type is supported, but in this case, \code{x} should only contain integer indices.
 This specifies the partners involved in each relationship by indexing the relevant feature set.
-Each element of \code{x} is assumed to point to the corresponding element of \code{features},
-i.e., the first element of \code{x} contains indices to the first element of \code{features} and so on.
+By default, each partner vector in \code{x} is assumed to point to the corresponding feature set in \code{featureSets},
+i.e., indices in \code{x[[1]]} refer to the elements in \code{featuresSets[[1]]} and so on.
+
+If set, \code{mapping} should be an integer vector of length equal to \code{x},
+specifying the index of the feature set in \code{featureSets} that is indexed by each partner vector in \code{x}.
+Multiple partner vectors can index the same feature set if the features are shared.
+If \code{mapping} is specified, \code{featureSets} must be non-\code{NULL}.
 
 If \code{x} is a IndexedRelations object, it is returned without further modification.
 }
@@ -81,6 +87,7 @@ Specifically, it behaves like any other one-dimensional \linkS4class{Vector} sub
 \section{Miscellaneous}{
 
 \code{show(x)} will show information about an IndexedRelations \code{x}, including a preview of the \code{\link{head}} relationships.
+Only the top elements are shown to avoid inconsistencies with the display of arbitrary Vector-like feature sets.
 }
 
 \examples{
@@ -105,7 +112,7 @@ rel <- IndexedRelations(
 # But it's more efficient to just supply indices, where possible:
 rel <- IndexedRelations(
     list(promoter=partner1, enhancer=partner2),
-    features=list(promoters=promoters, enhancers=enhancers)
+    featureSets=list(promoters=promoters, enhancers=enhancers)
 )
 
 IndexedRelations(rel) # does nothing.
