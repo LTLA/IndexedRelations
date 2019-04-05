@@ -36,9 +36,8 @@ makePairsFromIndexedRelations <- function(x) {
     Pairs(left, right, names=names(x), meta)
 }
 
-#' @export
 #' @importClassesFrom S4Vectors Pairs
 #' @importFrom S4Vectors first second
 setAs("Pairs", "IndexedRelations", function(from) {
-    IndexedRelations(list(first(p), second(p)))
+    IndexedRelations(list(first=first(p), second=second(p)))
 })

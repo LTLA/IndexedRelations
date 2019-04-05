@@ -166,7 +166,7 @@
 NULL
 
 #' @export
-#' @importFrom BiocGenerics match
+#' @importFrom BiocGenerics unique match
 #' @importFrom S4Vectors DataFrame
 #' @importClassesFrom S4Vectors List
 IndexedRelations <- function(x, featureSets=NULL, mapping=NULL) {
@@ -350,19 +350,14 @@ setMethod("show", "IndexedRelations", function(object) {
     N <- length(object)
     cat(sprintf("%s containing %i relation%s\n", class(object), N, if (N==1L) "" else "s"))
 
-    meta <- mcols(object)
-    nmeta <- if (is.null(meta)) 0 else ncol(meta)    
-    meta.names <- colnames(meta)
-    if (nmeta > 3) meta.names <- c(head(meta.names, 3), "...")
-    meta.names <- if (nmeta) paste0(vapply(meta.names, deparse, FUN.VALUE=""), collapse=" ") else ""
-    cat(sprintf("mcols names(%i): %s\n", nmeta, meta.names))
-
-    meta <- metadata(object)
-    nmeta <- length(meta)
-    meta.names <- names(meta)
-    if (nmeta > 3) meta.names <- c(head(meta.names, 3), "...")
-    meta.names <- if (nmeta) paste0(vapply(meta.names, deparse, FUN.VALUE=""), collapse=" ") else ""
-    cat(sprintf("metadata names(%i): %s\n", nmeta, meta.names))
+    .meta_print <- function(meta, msg) {
+        meta.names <- names(meta) 
+        if (length(meta.names) > 4) meta.names <- c(head(meta.names, 3), "...") 
+        meta.names <- if (length(meta.names)) paste0(vapply(meta.names, deparse, FUN.VALUE=""), collapse=" ") else ""
+        cat(sprintf("%s names(%i): %s\n", msg, length(meta), meta.names))
+    }
+    .meta_print(mcols(object), "mcols")
+    .meta_print(metadata(object), "metadata")
 
     p <- partners(object)
     pn <- partnerNames(object)
