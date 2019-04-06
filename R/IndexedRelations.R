@@ -169,6 +169,7 @@
 #' @aliases mapping mapping,IndexedRelations-method
 #' @aliases parallelSlotNames,IndexedRelations-method
 #' @aliases show,IndexedRelations-method
+#' @aliases names,IndexedRelations-method names<-,IndexedRelations-method
 #' @aliases bindROWS,IndexedRelations-method
 NULL
 
@@ -196,8 +197,8 @@ IndexedRelations <- function(x, featureSets=NULL, mapping=NULL) {
 
     x <- lapply(x, as.integer)
     x <- lapply(x, unname)
+    if (is.null(names(x))) names(x) <- sprintf("X.%i", seq_along(x))
     df <- do.call(DataFrame, x)
-    if (is.null(names(x))) names(df) <- NULL
 
     new("IndexedRelations", partners=df, featureSets=as(featureSets, "List"), mapping=mapping)
 }
@@ -214,16 +215,14 @@ setValidity2("IndexedRelations", function(object) {
     itr <- featureSets(object)
 
     # Checking mapping.
+    map.fail <- FALSE
     if (length(map)!=ncol(rlt)) {
+        map.fail <- TRUE
         msg <- c(msg, "length of 'mapping' should be the same as 'ncol(partners)'")
     } 
     if (.oob(map, length(itr))) {
+        map.fail <- TRUE
         msg <- c(msg, "out-of-bounds 'mapping' indices")
-    }
-
-    # Checking feature stores.
-    if (!length(itr) && ncol(rlt)) {
-        msg <- c(msg, "'featureSets' cannot be empty when 'partners' is not empty")
     }
 
     # Checking partners
@@ -233,9 +232,11 @@ setValidity2("IndexedRelations", function(object) {
             msg <- c(msg, sprintf("column %i of 'partners' is not integer", i))
         }
 
-        cur.store <- itr[[map[i]]]
-        if (.oob(current, length(cur.store))) {
-            msg <- c(msg, sprintf("column %i of 'partners' contains out-of-bounds indices", i))
+        if (!map.fail) {
+            cur.store <- itr[[map[i]]]
+            if (.oob(current, length(cur.store))) {
+                msg <- c(msg, sprintf("column %i of 'partners' contains out-of-bounds indices", i))
+            }
         }
     }
  
@@ -292,8 +293,9 @@ setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
     lost <- is.na(m)
     if (any(lost)) {
         lost.values <- incoming[lost]
-        ref <- c(ref, unique(lost.values)) # strictly appends, to avoid invaliding indices to 'ref'.
-        m[lost] <- match(lost.values, ref)
+        lost.ref <- unique(lost.values)
+        m[lost] <- length(ref) + match(lost.values, lost.ref)
+        ref <- c(ref, lost.ref) # strictly appends, to avoid invaliding indices to 'ref'.
     }
     list(id=m, ref=ref)
 }
@@ -312,9 +314,9 @@ setReplaceMethod("partner", "IndexedRelations", function(x, type, id=FALSE, ...,
     x
 })
 
-#################################
+####################################
 # Getters and setters: featureSets #
-#################################
+####################################
 
 #' @export
 setMethod("featureSets", "IndexedRelations", function(x) x@featureSets)
@@ -405,9 +407,9 @@ setMethod("bindROWS", "IndexedRelations", function(x, objects = list(), use.name
     callNextMethod()
 })
 
-########
-# show #
-########
+#################
+# Miscellaneous #
+#################
 
 #' @export
 #' @importFrom methods show
@@ -448,3 +450,13 @@ setMethod("show", "IndexedRelations", function(object) {
         cat(X, sep="\n")
     }
 })
+
+#' @export
+setMethod("names", "IndexedRelations", function(x) rownames(partners(x)))
+
+#' @export
+setReplaceMethod("names", "IndexedRelations", function(x, value) {
+    rownames(partners(x)) <- value
+    x
+})
+
