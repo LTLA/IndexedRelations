@@ -17,7 +17,7 @@ i3 <- sample(length(r3), N, replace=TRUE)
 
 test_that("basic construction works correctly", {
     IR <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
-    expect_identical(length(IR), N)
+    expect_identical(length(IR), as.integer(N))
 
     expected <- DataFrame(i1, i2, i3)
     colnames(expected) <- c("X.1", "X.2", "X.3")
@@ -75,6 +75,29 @@ test_that("constructors fail with invalid inputs", {
 ########################
 # Name-related methods #
 ########################
+
+test_that("names getting and setting works", {
+    IR <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
+    expect_identical(names(IR), NULL)
+
+    all.inters <- sprintf("LINK.%i", seq_along(IR))
+    names(IR) <- all.inters
+    expect_identical(names(IR), all.inters)
+
+    names(IR) <- NULL
+    expect_identical(names(IR), NULL)
+})
+
+test_that("other names getting and setting works", {
+    IR <- IndexedRelations(list(A=i1, B=i2, C=i3), list(r1, r2, r3))
+    expect_identical(partnerNames(IR), c("A", "B", "C"))
+
+    partnerNames(IR) <- c("C", "B", "A")
+    expect_identical(partnerNames(IR), c("C", "B", "A"))
+
+    featureSetNames(IR) <- c("C", "B", "A")
+    expect_identical(featureSetNames(IR), c("C", "B", "A"))
+})
 
 #########################
 # Partner getter/setter #
@@ -152,9 +175,17 @@ test_that("partner setter works correctly (different feature set)", {
     expect_identical(featureSets(ir)[[2]], c(r2, unique(new.ranges[order(chosen)])))
 })
 
+#########################
+# Feature getter/setter #
+#########################
 
+test_that("feature getter/setter works correctly", {
+    ir <- IndexedRelations(list(i1, i2, i3), list(A=r1, B=r2, C=r3))
 
+    featureSets(ir)[[1]] <- resize(featureSets(ir)[[1]], width=100)
+    expect_identical(partner(ir, 1), resize(r1[i1], width=100))
 
-
-
-
+    X <- runif(length(r2))
+    mcols(featureSets(ir)[["B"]])$blah <- X
+    expect_identical(mcols(partner(ir, 2))$blah, X[i2])
+})
