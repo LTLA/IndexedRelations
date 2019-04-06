@@ -49,6 +49,7 @@
 #' \item{\code{mapping(x)}:}{Returns an integer vector specifying the mapping from partners to feature sets.
 #' The indices of the \code{i}th partner point towards \code{featureSets(x)[[mapping(x)[i]]]}.}
 #' }
+#' Getter methods applicable to \linkS4class{Vector} subclasses are also applicable here, e.g., \code{length}, \code{names}, \code{mcols}.
 #'
 #' @section Setter methods:
 #' In the following code snippets, \code{x} is a IndexedRelations object.
@@ -66,10 +67,15 @@
 #' and each set in \code{value} should be at least as long as the set that it replaces.} 
 #' \item{\code{featureSetNames(x)}:}{Replaces the names used for each feature set with \code{value}, a character vector or \code{NULL}.}
 #' }
+#' Setter methods applicable to \linkS4class{Vector} subclasses are also applicable here, e.g., \code{names<-}, \code{mcols<-}.
 #'
-#' @section Combining and subsetting:
-#' An IndexedRelations instance behaves like a vector in terms of subsetting and combining.
-#' Specifically, it behaves like any other one-dimensional \linkS4class{Vector} subclass.
+#' @section Subsetting and combining:
+#' An IndexedRelations instance behaves like a one-dimensional \linkS4class{Vector} during subsetting.
+#' This will operate on the relations as vector elements.
+#'
+#' It is possible to combine IndexedRelations with the same feature set classes but different values or orderings.
+#' In such cases, an IndexedRelations object will be produced where each feature set is a union of the corresponding sets in the input.
+#' The same principle applies for subset assignment.
 #' 
 #' @section Miscellaneous:
 #' \code{show(x)} will show information about an IndexedRelations \code{x}, including a preview of the \code{\link{head}} relationships.
@@ -163,6 +169,7 @@
 #' @aliases mapping mapping,IndexedRelations-method
 #' @aliases parallelSlotNames,IndexedRelations-method
 #' @aliases show,IndexedRelations-method
+#' @aliases bindROWS,IndexedRelations-method
 NULL
 
 #' @export
@@ -189,7 +196,10 @@ IndexedRelations <- function(x, featureSets=NULL, mapping=NULL) {
 
     x <- lapply(x, as.integer)
     x <- lapply(x, unname)
-    new("IndexedRelations", partners=do.call(DataFrame, x), featureSets=as(featureSets, "List"), mapping=mapping)
+    df <- do.call(DataFrame, x)
+    if (is.null(names(x))) names(df) <- NULL
+
+    new("IndexedRelations", partners=df, featureSets=as(featureSets, "List"), mapping=mapping)
 }
 
 .oob <- function(indices, N) {
@@ -250,7 +260,7 @@ setValidity2("IndexedRelations", function(object) {
 setMethod("partners", "IndexedRelations", function(x) x@partners)
 
 #' @export
-setMethod("partnerNames", "IndexedRelations", function(x) colnames(partners(x)))
+setMethod("partnerNames", "IndexedRelations", function(x) names(partners(x)))
 
 #' @export
 setMethod("partner", "IndexedRelations", function(x, type, id=FALSE) {
@@ -276,23 +286,26 @@ setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
     x
 })
 
-#' @export
 #' @importFrom BiocGenerics match
+.combine_features <- function(incoming, ref) {
+    m <- match(incoming, ref)
+    lost <- is.na(m)
+    if (any(lost)) {
+        lost.values <- incoming[lost]
+        ref <- c(ref, unique(lost.values)) # strictly appends, to avoid invaliding indices to 'ref'.
+        m[lost] <- match(lost.values, ref)
+    }
+    list(id=m, ref=ref)
+}
+
+#' @export
 setReplaceMethod("partner", "IndexedRelations", function(x, type, id=FALSE, ..., value) {
     if (!id) { 
         ftype <- .map2store(x, type)
         cur.store <- featureSets(x)[[ftype]]
-        m <- match(value, cur.store)
-
-        lost <- is.na(m)
-        if (any(lost)) {
-            lost.values <- value[lost]
-            cur.store <- c(cur.store, unique(lost.values))
-            m[lost] <- match(lost.values, cur.store)
-            featureSets(x)[[type]] <- cur.store
-        }
-
-        value <- m
+        combined <- .combine_features(value, cur.store)
+        value <- combined$id
+        featureSets(x)[[ftype]] <- combined$ref
     }
 
     partners(x)[[type]] <- value 
@@ -335,8 +348,62 @@ setMethod("mapping", "IndexedRelations", function(x) x@mapping)
 #' @export
 #' @importFrom S4Vectors parallelSlotNames
 setMethod("parallelSlotNames", "IndexedRelations", function(x) 
-    c("partners", callNextMethod()) # EASY!
+    c("partners", callNextMethod()) # Handles [, length, mcols synchronization.
 )
+
+.verify_identity <- function(x, objects, FUN, msg) {
+    ref <- FUN(x)
+    others <- lapply(objects, FUN)
+    if (!all(vapply(others, identical, y=ref, FUN.VALUE=TRUE))) {
+        stop(msg)
+    }
+    NULL
+}
+
+#' @export
+#' @importFrom S4Vectors bindROWS
+setMethod("bindROWS", "IndexedRelations", function(x, objects = list(), use.names = TRUE, ignore.mcols = FALSE, check = TRUE) {
+    nobjects <- length(objects)
+
+    # Checking that objects are even mergeable.
+    .verify_identity(x, objects, function(x) lapply(featureSets(x), class),
+        "'featureSets' should have the same classes for all objects")
+
+    .verify_identity(x, objects, function(x) ncol(partners(x)),
+        "'partners' should have the same 'ncol' for all objects")
+
+    .verify_identity(x, objects, mapping, "'mapping' should be the same for all objects")
+
+    # Reindexing the merge elements.
+    ref.features <- featureSets(x)
+
+    for (i in seq_len(nobjects)) {
+        cur.partners <- partners(objects[[i]])
+        cur.features <- featureSets(objects[[i]])
+        cur.map <- mapping(objects[[i]])
+
+        remap <- vector("list", length(cur.features))
+        for (j in seq_along(remap)) {
+            out <- .combine_features(cur.features[[j]], ref.features[[j]])
+            ref.features[[j]] <- out$ref
+            remap[[j]] <- out$id
+        }
+
+        for (k in seq_len(ncol(cur.partners))) {
+            ftype <- cur.map[k]
+            cur.partners[,k] <- remap[[ftype]][cur.partners[,k]]
+        }
+        partners(objects[[i]]) <- cur.partners
+    }
+
+    featureSets(x) <- ref.features
+    for (i in seq_len(nobjects)) {
+        featureSets(objects[[i]]) <- ref.features
+    }
+
+    # Creating the output object.
+    callNextMethod()
+})
 
 ########
 # show #
