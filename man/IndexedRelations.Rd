@@ -57,6 +57,7 @@ This may be \code{NULL} if the feature sets are not named.}
 \item{\code{mapping(x)}:}{Returns an integer vector specifying the mapping from partners to feature sets.
 The indices of the \code{i}th partner point towards \code{featureSets(x)[[mapping(x)[i]]]}.}
 }
+Getter methods applicable to \linkS4class{Vector} subclasses are also applicable here, e.g., \code{length}, \code{names}, \code{mcols}.
 }
 
 \section{Setter methods}{
@@ -76,12 +77,17 @@ and replacement is performed while appending new features to the corresponding f
 and each set in \code{value} should be at least as long as the set that it replaces.} 
 \item{\code{featureSetNames(x)}:}{Replaces the names used for each feature set with \code{value}, a character vector or \code{NULL}.}
 }
+Setter methods applicable to \linkS4class{Vector} subclasses are also applicable here, e.g., \code{names<-}, \code{mcols<-}.
 }
 
-\section{Combining and subsetting}{
+\section{Subsetting and combining}{
 
-An IndexedRelations instance behaves like a vector in terms of subsetting and combining.
-Specifically, it behaves like any other one-dimensional \linkS4class{Vector} subclass.
+An IndexedRelations instance behaves like a one-dimensional \linkS4class{Vector} during subsetting.
+This will operate on the relations as vector elements.
+
+It is possible to combine IndexedRelations with the same feature set classes but different values or orderings.
+In such cases, an IndexedRelations object will be produced where each feature set is a union of the corresponding sets in the input.
+The same principle applies for subset assignment.
 }
 
 \section{Miscellaneous}{
