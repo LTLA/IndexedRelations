@@ -357,57 +357,12 @@ setMethod("parallelSlotNames", "IndexedRelations", function(x)
     c("partners", callNextMethod()) # Handles [, length, mcols synchronization.
 )
 
-.verify_identity <- function(x, objects, FUN, msg) {
-    ref <- FUN(x)
-    others <- lapply(objects, FUN)
-    if (!all(vapply(others, identical, y=ref, FUN.VALUE=TRUE))) {
-        stop(msg)
-    }
-    NULL
-}
-
 #' @export
 #' @importFrom S4Vectors bindROWS
 setMethod("bindROWS", "IndexedRelations", function(x, objects = list(), use.names = TRUE, ignore.mcols = FALSE, check = TRUE) {
-    nobjects <- length(objects)
-
-    # Checking that objects are even mergeable.
-    .verify_identity(x, objects, function(x) lapply(featureSets(x), class),
-        "'featureSets' should have the same classes for all objects")
-
-    .verify_identity(x, objects, function(x) ncol(partners(x)),
-        "'partners' should have the same 'ncol' for all objects")
-
-    .verify_identity(x, objects, mapping, "'mapping' should be the same for all objects")
-
-    # Reindexing the merge elements.
-    ref.features <- featureSets(x)
-
-    for (i in seq_len(nobjects)) {
-        cur.partners <- partners(objects[[i]])
-        cur.features <- featureSets(objects[[i]])
-        cur.map <- mapping(objects[[i]])
-
-        remap <- vector("list", length(cur.features))
-        for (j in seq_along(remap)) {
-            out <- .combine_features(cur.features[[j]], ref.features[[j]])
-            ref.features[[j]] <- out$ref
-            remap[[j]] <- out$id
-        }
-
-        for (k in seq_len(ncol(cur.partners))) {
-            ftype <- cur.map[k]
-            cur.partners[,k] <- remap[[ftype]][cur.partners[,k]]
-        }
-        partners(objects[[i]]) <- cur.partners
-    }
-
-    featureSets(x) <- ref.features
-    for (i in seq_len(nobjects)) {
-        featureSets(objects[[i]]) <- ref.features
-    }
-
-    # Creating the output object.
+    output <- .standardize_featureSets(x, objects)
+    x <- output$x
+    objects <- output$objects
     callNextMethod()
 })
 
