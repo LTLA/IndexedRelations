@@ -78,17 +78,17 @@ setMethod("pcompare", c("IndexedRelations", "IndexedRelations"), function(x, y) 
         return(integer(0))
     }
 
-    std.feat <- .standardize_featureSets(x, list(y), clean=TRUE)
-    x <- std.feat$x
-    y <- std.feat$objects[[1]]
+    std.feat <- .standardize_featureSets(x, list(y))
+    x <- .clean_featureSets(std.feat$x)
+    y <- .clean_featureSets(std.feat$objects[[1]])
 
     output <- integer(max(length(x), length(y)))
     px <- partners(x)
     py <- partners(y)
 
     for (i in seq_len(ncol(px))) {
-        current <- sign(px[,i] - py[,i]) # recycles.
-        undecided <- output==0
+        current <- px[,i] - py[,i] # recycles.
+        undecided <- output==0L
         output[undecided] <- current[undecided]
     }
 
@@ -98,9 +98,9 @@ setMethod("pcompare", c("IndexedRelations", "IndexedRelations"), function(x, y) 
 #' @export
 #' @importFrom BiocGenerics match
 setMethod("match", c("IndexedRelations", "IndexedRelations"), function(x, table, nomatch = NA_integer_, incomparables = NULL, ...) {
-    std.feat <- .standardize_featureSets(x, list(table), clean=TRUE)
-    x <- std.feat$x
-    table <- std.feat$objects[[1]]
+    std.feat <- .standardize_featureSets(x, list(table))
+    x <- .clean_featureSets(std.feat$x)
+    table <- .clean_featureSets(std.feat$objects[[1]])
     combined <- rbind(partners(x), partners(table))
 
     # 'all.origins' ensures that the 'table' entry is first if any entries of 'x' are equal,
@@ -112,7 +112,7 @@ setMethod("match", c("IndexedRelations", "IndexedRelations"), function(x, table,
 
     is.unique <- Reduce("|", lapply(combined, FUN=function(x) c(TRUE, diff(x)>0L)))
     has.origin <- cumsum(is.unique)
-    has.origin <- all.origins[has.origin]
+    has.origin <- all.origins[is.unique][has.origin]
     has.origin[o] <- has.origin
 
     output <- has.origin[seq_along(x)]
@@ -124,14 +124,17 @@ setMethod("match", c("IndexedRelations", "IndexedRelations"), function(x, table,
 #' @importFrom S4Vectors selfmatch
 setMethod("selfmatch", "IndexedRelations", function(x, ...) {
     x <- .clean_featureSets(x)
+    pset <- partners(x)
 
     # Additional all.origins to ensure that ordering is stable.
     all.origins <- seq_along(x)
-    o <- do.call(order, c(as.list(partners(x)), list(all.origins)))
+    o <- do.call(order, c(as.list(pset), list(all.origins)))
+    all.origins <- all.origins[o]
+    pset <- pset[o,]
 
-    is.unique <- Reduce("|", lapply(combined, FUN=function(x) c(TRUE, diff(x)>0L)))
+    is.unique <- Reduce("|", lapply(pset, FUN=function(x) c(TRUE, diff(x)>0L)))
     has.origin <- cumsum(is.unique)
-    has.origin <- all.origins[has.origin]
+    has.origin <- all.origins[is.unique][has.origin]
     has.origin[o] <- has.origin
 
     has.origin
