@@ -99,9 +99,9 @@ test_that("other names getting and setting works", {
     expect_identical(featureSetNames(IR), c("C", "B", "A"))
 })
 
-#########################
-# Partner getter/setter #
-#########################
+###################
+# Getters/setters #
+###################
 
 test_that("partner getter works correctly", {
     ir <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
@@ -175,10 +175,6 @@ test_that("partner setter works correctly (different feature set)", {
     expect_identical(featureSets(ir)[[2]], c(r2, unique(new.ranges[order(chosen)])))
 })
 
-#########################
-# Feature getter/setter #
-#########################
-
 test_that("feature getter/setter works correctly", {
     ir <- IndexedRelations(list(i1, i2, i3), list(A=r1, B=r2, C=r3))
 
@@ -188,4 +184,78 @@ test_that("feature getter/setter works correctly", {
     X <- runif(length(r2))
     mcols(featureSets(ir)[["B"]])$blah <- X
     expect_identical(mcols(partner(ir, 2))$blah, X[i2])
+})
+
+############################
+# Subsetting and combining #
+############################
+
+test_that("subsetting works correctly", {
+    original <- list(i1, i2, i3)
+    ir <- IndexedRelations(original, list(A=r1, B=r2, C=r3))
+    expect_identical(ir[1:10], IndexedRelations(lapply(original, "[", 1:10), list(A=r1, B=r2, C=r3)))
+    expect_identical(ir[10:1], IndexedRelations(lapply(original, "[", 10:1), list(A=r1, B=r2, C=r3)))
+})
+
+test_that("combining works correctly", {
+    # Same features.
+    original <- list(i1, i2, i3)
+    ir <- IndexedRelations(original, list(A=r1, B=r2, C=r3))
+    ir2 <- c(ir, ir[100:80])
+
+    modified <- mapply(c, original, lapply(original, "[", 100:80), SIMPLIFY=FALSE)
+    expect_identical(ir2, IndexedRelations(modified, list(A=r1, B=r2, C=r3)))
+
+    # Different features.
+    irx <- IndexedRelations(original[c(3,1,2)], list(A=r3, B=r1, C=r2))
+    ir3 <- c(ir, irx)
+
+    expect_identical(partner(ir3, 1), c(partner(ir, 1), partner(irx, 1)))
+    expect_identical(partner(ir3, 2), c(partner(ir, 2), partner(irx, 2)))
+    expect_identical(partner(ir3, 3), c(partner(ir, 3), partner(irx, 3)))
+
+    expect_identical(featureSets(ir3)[[1]], c(r1, r3[!r3 %in% r1]))
+    expect_identical(featureSets(ir3)[[2]], c(r2, r1[!r1 %in% r2]))
+    expect_identical(featureSets(ir3)[[3]], c(r3, r2[!r2 %in% r3]))
+
+    # Crashes with incompatible features.
+    expect_error(c(ir, IndexedRelations(original[1:2], list(A=r1, B=r2))), "featureSets")
+    expect_error(c(ir, IndexedRelations(original[1:2], list(A=r1, B=r2, C=r3))), "partners")
+    expect_error(c(ir, IndexedRelations(original, list(A=r3, B=r2, C=r1), mapping=3:1)), "mapping")
+})
+
+test_that("subset assignment works correctly", {
+    # Same features.
+    original <- list(i1, i2, i3)
+    ir <- ir2 <- IndexedRelations(original, list(A=r1, B=r2, C=r3))
+    ir2[21:30] <- ir[1:10]
+
+    modified <- lapply(original, "[", c(1:20, 1:10, 31:100))
+    expect_identical(ir2, IndexedRelations(modified, list(A=r1, B=r2, C=r3)))
+
+    # Different features.
+    irx <- IndexedRelations(original[c(3,1,2)], list(A=r3, B=r1, C=r2))
+    ir3 <- ir
+    ir3[21:30] <- irx[1:10]
+
+    ref <- partner(ir, 1)
+    ref[21:30] <- partner(irx, 1)[1:10]
+    expect_identical(partner(ir3, 1), ref)
+
+    ref <- partner(ir, 2)
+    ref[21:30] <- partner(irx, 2)[1:10]
+    expect_identical(partner(ir3, 2), ref)
+
+    ref <- partner(ir, 3)
+    ref[21:30] <- partner(irx, 3)[1:10]
+    expect_identical(partner(ir3, 3), ref)
+
+    expect_identical(featureSets(ir3)[[1]], c(r1, r3[!r3 %in% r1]))
+    expect_identical(featureSets(ir3)[[2]], c(r2, r1[!r1 %in% r2]))
+    expect_identical(featureSets(ir3)[[3]], c(r3, r2[!r2 %in% r3]))
+
+    # Crashes with incompatible features.
+    expect_error(ir[1:100] <- IndexedRelations(original[1:2], list(A=r1, B=r2)), "featureSets")
+    expect_error(ir[1:100] <- IndexedRelations(original[1:2], list(A=r1, B=r2, C=r3)), "partners")
+    expect_error(ir[1:100] <- IndexedRelations(original, list(A=r3, B=r2, C=r1), mapping=3:1), "mapping")
 })
