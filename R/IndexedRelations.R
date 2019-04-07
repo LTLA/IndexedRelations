@@ -289,13 +289,17 @@ setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
 
 #' @importFrom BiocGenerics match
 .combine_features <- function(incoming, ref) {
-    m <- match(incoming, ref)
-    lost <- is.na(m)
-    if (any(lost)) {
-        lost.values <- incoming[lost]
-        lost.ref <- unique(lost.values)
-        m[lost] <- length(ref) + match(lost.values, lost.ref)
-        ref <- c(ref, lost.ref) # strictly appends, to avoid invaliding indices to 'ref'.
+    if (length(incoming)==length(ref) && all(incoming==ref)) {
+        m <- seq_along(incoming)
+    } else {
+        m <- match(incoming, ref)
+        lost <- is.na(m)
+        if (any(lost)) {
+            lost.values <- incoming[lost]
+            lost.ref <- unique(lost.values)
+            m[lost] <- length(ref) + match(lost.values, lost.ref)
+            ref <- c(ref, lost.ref) # strictly appends, to avoid invaliding indices to 'ref'.
+        }
     }
     list(id=m, ref=ref)
 }
