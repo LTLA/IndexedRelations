@@ -88,7 +88,7 @@ test_that("match yields NAs when necessary", {
     expect_identical(m, c(seq_len(10), rep(NA_integer_, N-10)))
 
     # More complex case with modified features to guarantee feature set differences.
-    modfun <- function(x) resize(x, width(x) + 1) 
+    modfun <- function(x) resize(x, max(width(x)) + 1) 
     IR2 <- IndexedRelations(list(i1[1:10], i2[1:10], i3[1:10]), list(modfun(r1), modfun(r2), modfun(r3)))
 
     combined <- c(IR2, IR)
@@ -155,6 +155,8 @@ test_that("ordering works correctly", {
 
     IR2 <- IR[sample(5, N, replace=TRUE)]
     expect_identical(order(IR2, IR), REF_order(IR2, IR))
+
+    expect_identical(order(IR2), REF_order(IR2)) # Ordering is stable.
 
     # Behaves with zero-length inputs.
     expect_identical(order(IR[0]), integer(0))
