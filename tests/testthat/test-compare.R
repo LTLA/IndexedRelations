@@ -156,7 +156,15 @@ test_that("ordering works correctly", {
     IR2 <- IR[sample(5, N, replace=TRUE)]
     expect_identical(order(IR2, IR), REF_order(IR2, IR))
 
-    expect_identical(order(IR2), REF_order(IR2)) # Ordering is stable.
+    # Ordering is stable for multiple entries of the same feature set...
+    expect_identical(order(IR2), REF_order(IR2)) 
+
+    # ... and highly duplicated feature sets.
+    swor <- function(...) sample(..., replace=TRUE)
+    IR3 <- IndexedRelations(list(swor(20, 100), swor(10, 100), swor(30, 100)),
+        list(swor(r1[1:3], 20), swor(r2[1:2], 10), swor(r3[1:4], 30)))
+    expect_true(any(duplicated(IR3)))
+    expect_identical(order(IR3), REF_order(IR3))
 
     # Behaves with zero-length inputs.
     expect_identical(order(IR[0]), integer(0))

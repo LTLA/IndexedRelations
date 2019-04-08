@@ -38,7 +38,7 @@ test_that("Setters work as expected on a singleton", {
     expect_identical(partner(IR, 2), regions[i2])
     expect_identical(partner(IR, 3), regions[i3])
 
-    expect_identical(featureSets(IR)[[1]], c(regions, new.regions[!new.regions %in% regions]))
+    expect_identical(featureSets(IR)[[1]], unique(c(regions, new.regions)))
 
     # Replacing features.
     IR <- IndexedRelations(list(i1, i2, i3), featureSets=list(regions), mapping=c(1L,1L,1L))

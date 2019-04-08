@@ -214,9 +214,9 @@ test_that("combining works correctly", {
     expect_identical(partner(ir3, 2), c(partner(ir, 2), partner(irx, 2)))
     expect_identical(partner(ir3, 3), c(partner(ir, 3), partner(irx, 3)))
 
-    expect_identical(featureSets(ir3)[[1]], c(r1, r3[!r3 %in% r1]))
-    expect_identical(featureSets(ir3)[[2]], c(r2, r1[!r1 %in% r2]))
-    expect_identical(featureSets(ir3)[[3]], c(r3, r2[!r2 %in% r3]))
+    expect_identical(featureSets(ir3)[[1]], unique(c(r1, r3)))
+    expect_identical(featureSets(ir3)[[2]], unique(c(r2, r1)))
+    expect_identical(featureSets(ir3)[[3]], unique(c(r3, r2)))
 
     # Crashes with incompatible features.
     expect_error(c(ir, IndexedRelations(original[1:2], list(A=r1, B=r2))), "featureSets")
@@ -238,21 +238,15 @@ test_that("subset assignment works correctly", {
     ir3 <- ir
     ir3[21:30] <- irx[1:10]
 
-    ref <- partner(ir, 1)
-    ref[21:30] <- partner(irx, 1)[1:10]
-    expect_identical(partner(ir3, 1), ref)
+    for (i in 1:3) {
+        ref <- partner(ir, i)
+        ref[21:30] <- partner(irx, i)[1:10]
+        expect_identical(partner(ir3, i), ref)
+    }
 
-    ref <- partner(ir, 2)
-    ref[21:30] <- partner(irx, 2)[1:10]
-    expect_identical(partner(ir3, 2), ref)
-
-    ref <- partner(ir, 3)
-    ref[21:30] <- partner(irx, 3)[1:10]
-    expect_identical(partner(ir3, 3), ref)
-
-    expect_identical(featureSets(ir3)[[1]], c(r1, r3[!r3 %in% r1]))
-    expect_identical(featureSets(ir3)[[2]], c(r2, r1[!r1 %in% r2]))
-    expect_identical(featureSets(ir3)[[3]], c(r3, r2[!r2 %in% r3]))
+    expect_identical(featureSets(ir3)[[1]], unique(c(r1, r3)))
+    expect_identical(featureSets(ir3)[[2]], unique(c(r2, r1)))
+    expect_identical(featureSets(ir3)[[3]], unique(c(r3, r2)))
 
     # Crashes with incompatible features.
     expect_error(ir[1:100] <- IndexedRelations(original[1:2], list(A=r1, B=r2)), "featureSets")
