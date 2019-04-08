@@ -78,9 +78,9 @@ setMethod("pcompare", c("IndexedRelations", "IndexedRelations"), function(x, y) 
         return(integer(0))
     }
 
-    std.feat <- .standardize_featureSets(x, list(y))
-    x <- .clean_featureSets(std.feat$x)
-    y <- .clean_featureSets(std.feat$objects[[1]])
+    std.feat <- standardizeFeatureSets(x, list(y), clean=TRUE)
+    x <- std.feat$x
+    y <- std.feat$objects[[1]]
 
     output <- integer(max(length(x), length(y)))
     px <- partners(x)
@@ -98,9 +98,9 @@ setMethod("pcompare", c("IndexedRelations", "IndexedRelations"), function(x, y) 
 #' @export
 #' @importFrom BiocGenerics match
 setMethod("match", c("IndexedRelations", "IndexedRelations"), function(x, table, nomatch = NA_integer_, incomparables = NULL, ...) {
-    std.feat <- .standardize_featureSets(x, list(table))
-    x <- .clean_featureSets(std.feat$x)
-    table <- .clean_featureSets(std.feat$objects[[1]])
+    std.feat <- standardizeFeatureSets(x, list(table), clean=TRUE)
+    x <- std.feat$x
+    table <- std.feat$objects[[1]]
     combined <- rbind(partners(x), partners(table))
 
     # 'all.origins' ensures that the 'table' entry is first if any entries of 'x' are equal,
@@ -123,7 +123,7 @@ setMethod("match", c("IndexedRelations", "IndexedRelations"), function(x, table,
 #' @export
 #' @importFrom S4Vectors selfmatch
 setMethod("selfmatch", "IndexedRelations", function(x, ...) {
-    x <- .clean_featureSets(x)
+    x <- cleanFeatureSets(x)
     pset <- partners(x)
 
     # Additional all.origins to ensure that ordering is stable.
@@ -144,7 +144,7 @@ setMethod("selfmatch", "IndexedRelations", function(x, ...) {
 #' @importFrom BiocGenerics order
 setMethod("order", "IndexedRelations", function(..., na.last=TRUE, decreasing=FALSE, method=c("auto", "shell", "radix")) {
     objects <- list(...)
-    objects <- lapply(objects, .clean_featureSets)
+    objects <- lapply(objects, cleanFeatureSets)
     all.partners <- lapply(objects, partners)
     all.partners <- unlist(lapply(all.partners, as.list), recursive=FALSE)
     do.call(order, c(all.partners, list(na.last=na.last, decreasing=decreasing, method=method)))

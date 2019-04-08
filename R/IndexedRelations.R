@@ -289,7 +289,7 @@ setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
 
 #' @importFrom BiocGenerics match
 .combine_features <- function(incoming, ref) {
-    if (length(incoming)==length(ref) && all(incoming==ref)) {
+    if (identical(incoming, ref)) {
         m <- seq_along(incoming)
     } else {
         m <- match(incoming, ref)
@@ -360,7 +360,7 @@ setMethod("parallelSlotNames", "IndexedRelations", function(x)
 #' @export
 #' @importFrom S4Vectors bindROWS
 setMethod("bindROWS", "IndexedRelations", function(x, objects = list(), use.names = TRUE, ignore.mcols = FALSE, check = TRUE) {
-    output <- .standardize_featureSets(x, objects)
+    output <- standardizeFeatureSets(x, objects)
     x <- output$x
     objects <- output$objects
     callNextMethod()
