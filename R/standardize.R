@@ -32,7 +32,7 @@
 #' partner1 <- sample(length(promoters), 100, replace=TRUE)
 #' partner2 <- sample(length(enhancers), 100, replace=TRUE)
 #'
-#' rel <- IndexedRelations(
+#' rel1 <- IndexedRelations(
 #'     list(promoter=partner1, enhancer=partner2),
 #'     featureSets=list(promoters=promoters, enhancers=enhancers)
 #' )
@@ -52,13 +52,27 @@ standardizeFeatureSets <- function(x, objects, clean=FALSE)
 # This allows them to be compared, merged, etc.
 {
     # Checking that objects are even mergeable.
-    .check_equality(x, objects, function(x) lapply(featureSets(x), class),
-        "'featureSets' should have the same classes for all objects")
+    FUN <- function(z) unname(lapply(featureSets(z), class))
+    ref.fcls <- FUN(x)
+    obj.fcls <- lapply(objects, FUN)
 
-    .check_equality(x, objects, function(x) ncol(partners(x)),
-        "'partners' should have the same 'ncol' for all objects")
+    if (!.check_equality(ref.fcls, obj.fcls)) {
+        ref.fcls <- ref.fcls[mapping(x)]
+        obj.fcls <- mapply("[", obj.fcls, lapply(objects, mapping), SIMPLIFY=FALSE)
+        if (!.check_equality(ref.fcls, obj.fcls)) {
+            stop("feature sets are not comparable across objects")
+        }
 
-    .check_equality(x, objects, mapping, "'mapping' should be the same for all objects")
+        # Forcibly expanding everyone to a straightforward mapping,
+        # if the feature set classes are not directly equal but 
+        # become so after expanding by 'mapping'.
+        expander <- function(x) { 
+            fsets <- featureSets(x)
+            initialize(x, featureSets=fsets[mapping(x)], mapping=seq_along(fsets))
+        }
+        x <- expander(x)
+        objects <- lapply(objects, expander) 
+    }
 
     # Reindexing the features to the same set.
     ref.features <- featureSets(x)
@@ -102,13 +116,8 @@ standardizeFeatureSets <- function(x, objects, clean=FALSE)
     list(x=x, objects=objects)
 }
 
-.check_equality <- function(x, objects, FUN, msg) {
-    ref <- FUN(x)
-    others <- lapply(objects, FUN)
-    if (!all(vapply(others, identical, y=ref, FUN.VALUE=TRUE))) {
-        stop(msg)
-    }
-    invisible(NULL)
+.check_equality <- function(ref, others) {
+    all(vapply(others, identical, y=ref, FUN.VALUE=TRUE))
 }
 
 .reindex_partners <- function(x, remap) {
