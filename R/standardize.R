@@ -68,7 +68,7 @@ standardizeFeatureSets <- function(x, objects, clean=FALSE)
         # become so after expanding by 'mapping'.
         expander <- function(x) { 
             fsets <- featureSets(x)
-            initialize(x, featureSets=fsets[mapping(x)], mapping=seq_along(fsets))
+            initialize(x, featureSets=fsets[mapping(x)], mapping=seq_along(mapping(x)))
         }
         x <- expander(x)
         objects <- lapply(objects, expander) 
