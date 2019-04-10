@@ -7,3 +7,11 @@ random_ranges <- function(n) {
     unique(out)
 }
 
+expect_as_if <- function(x, y) {
+    n <- ncol(partners(x))
+    expect_identical(n, ncol(partners(y)))
+    for (i in seq_len(n)) {
+        expect_identical(partner(x, i), partner(y, i))
+    }
+    invisible(NULL)
+}
