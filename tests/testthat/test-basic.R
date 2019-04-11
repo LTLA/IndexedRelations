@@ -43,10 +43,7 @@ test_that("complex construction works correctly", {
     ir <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
     ir2 <- IndexedRelations(list(r1[i1], r2[i2], r3[i3]))
 
-    expect_identical(partner(ir, 1), partner(ir2, 1))
-    expect_identical(partner(ir, 2), partner(ir2, 2))
-    expect_identical(partner(ir, 3), partner(ir2, 3))
-
+    expect_as_if(ir, ir2)
     expect_identical(featureSets(ir2)[[1]], r1[unique(i1)])
     expect_identical(featureSets(ir2)[[2]], r2[unique(i2)])
     expect_identical(featureSets(ir2)[[3]], r3[unique(i3)])
@@ -210,18 +207,17 @@ test_that("combining works correctly", {
     irx <- IndexedRelations(original[c(3,1,2)], list(A=r3, B=r1, C=r2))
     ir3 <- c(ir, irx)
 
-    expect_identical(partner(ir3, 1), c(partner(ir, 1), partner(irx, 1)))
-    expect_identical(partner(ir3, 2), c(partner(ir, 2), partner(irx, 2)))
-    expect_identical(partner(ir3, 3), c(partner(ir, 3), partner(irx, 3)))
+    for (i in 1:3) {
+        expect_identical(partner(ir3, i), c(partner(ir, i), partner(irx, i)))
+    }
 
     expect_identical(featureSets(ir3)[[1]], unique(c(r1, r3)))
     expect_identical(featureSets(ir3)[[2]], unique(c(r2, r1)))
     expect_identical(featureSets(ir3)[[3]], unique(c(r3, r2)))
 
     # Crashes with incompatible features.
-    expect_error(c(ir, IndexedRelations(original[1:2], list(A=r1, B=r2))), "featureSets")
-    expect_error(c(ir, IndexedRelations(original[1:2], list(A=r1, B=r2, C=r3))), "partners")
-    expect_error(c(ir, IndexedRelations(original, list(A=r3, B=r2, C=r1), mapping=3:1)), "mapping")
+    expect_error(c(ir, IndexedRelations(original[1:2], list(A=r1, B=r2))), "feature sets")
+    expect_error(c(ir, IndexedRelations(original[1:2], list(A=r1, B=r2, C=r3))), "same number of columns")
 })
 
 test_that("subset assignment works correctly", {
@@ -249,7 +245,6 @@ test_that("subset assignment works correctly", {
     expect_identical(featureSets(ir3)[[3]], unique(c(r3, r2)))
 
     # Crashes with incompatible features.
-    expect_error(ir[1:100] <- IndexedRelations(original[1:2], list(A=r1, B=r2)), "featureSets")
-    expect_error(ir[1:100] <- IndexedRelations(original[1:2], list(A=r1, B=r2, C=r3)), "partners")
-    expect_error(ir[1:100] <- IndexedRelations(original, list(A=r3, B=r2, C=r1), mapping=3:1), "mapping")
+    expect_error(ir[1:100] <- IndexedRelations(original[1:2], list(A=r1, B=r2)), "feature sets")
+    expect_error(ir[1:100] <- IndexedRelations(original[1:2], list(A=r1, B=r2, C=r3)), "same number of columns")
 })

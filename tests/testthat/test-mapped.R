@@ -66,7 +66,7 @@ test_that("Subsetting and combining work correctly", {
     featureSets(IRx)[[1]] <- resize(regions, max(width(regions))+1) # force creations of new regions.
     IR3 <- c(IR, IRx) 
     expect_identical(length(featureSets(IR3)), 1L)
-    expect_identical(featureSets(IR3)[[1]], c(regions, featureSets(IRx)[[1]]))
+    expect_identical(featureSets(IR3)[[1]], unique(c(regions, featureSets(IRx)[[1]])))
 
     for (i in 1:3) {
         expect_identical(partner(IR3, i),  c(partner(IR, i), partner(IRx, i)))
@@ -83,7 +83,7 @@ test_that("Subsetting and combining work correctly", {
     IRa <- IR
     IRa[chosen] <- IRx
     expect_identical(length(featureSets(IR3)), 1L)
-    expect_identical(featureSets(IR3)[[1]], c(regions, featureSets(IRx)[[1]]))
+    expect_identical(featureSets(IR3)[[1]], unique(c(regions, featureSets(IRx)[[1]])))
 
     for (i in 1:3) {
         P <- partner(IR, i)
@@ -102,6 +102,8 @@ test_that("pcompare works correctly", {
     expect_true(all(IR==IR))
 
     ref <- IndexedRelations(list(i1, i2, i3), featureSets=list(regions, regions, regions))
+    expect_as_if(IR, ref)
+
     s <- sample(length(IR))
     expect_identical(pcompare(ref, ref[s]), pcompare(IR, IR[s]))
 
@@ -110,6 +112,7 @@ test_that("pcompare works correctly", {
     IR2 <- IndexedRelations(list(i1, i2, i3), featureSets=list(r2), mapping=c(1L,1L,1L))
     ref2 <- IndexedRelations(list(i1, i2, i3), featureSets=list(r2, r2, r2))
 
+    expect_as_if(IR2, ref2)
     expect_identical(pcompare(ref, ref2), pcompare(IR, IR2))
 })
 
