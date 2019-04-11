@@ -1,0 +1,151 @@
+---
+title: Representing 'omics relationships with _IndexedRelations_
+author:
+- name: Aaron Lun
+  email: infinite.monkeys.with.keyboards@gmail.com
+date: "Revised: 10 April 2019"
+output:
+  BiocStyle::html_document:
+    toc_float: true
+package: IndexedRelations
+vignette: >
+  %\VignetteIndexEntry{Representing 'omics relationships} 
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}    
+---
+
+```{r, echo=FALSE, results="hide", message=FALSE}
+require(knitr)
+opts_chunk$set(error=FALSE, message=FALSE, warning=FALSE)
+```
+
+# Overview
+
+The `r Biocpkg("IndexedRelations")` package implements the `IndexedRelations` class for representing 'omics relationships.
+This can be used for physical interactions, regulatory relationships or other associations involving any number of features.
+The `IndexedRelations` class is primarily intended as a base class from which concrete subclasses can be derived for specific contexts.
+For example, the `r Biocpkg("GenomicInteractions")` package derives an subclass to represent physical interactions between genomic intervals.
+
+# The `IndexedRelations` class
+
+Each `IndexedRelations` object holds relationships between "partner" features.
+Partners can be any instance of a `Vector`-like class such as `GenomicRanges` and `IRanges`^[See `r Biocpkg("S4Vectors")` for details.].
+In a single `IndexedRelations` object, each entry is a relationship that involves the same number and type of partners.
+
+To illustrate, let's make up a `GenomicRanges` and an `IRanges` object.
+The former might represent a chromosomal interval while the latter might represent, say, an interval on an exogenous sequence like a plasmid.
+
+```{r}
+# Making up features.
+library(GenomicRanges)
+gr <- GRanges(sample(1:21, 100, replace=TRUE),
+    IRanges(sample(1e8, 100, replace=TRUE), width=10))
+gr
+
+ir <- IRanges(sample(1000, 20, replace=TRUE), width=5)
+ir
+```
+
+Now, assume that there are multiple relationships between individual entries of these two objects.
+(Let's pretend that the parts of the plasmid come into contact with the chromosomes at various points.)
+The `partner.G` vector refers to elements of `gr` while `partner.I` refers to elements of `ir`.
+The first element of `partner.G` is in a relationship with the first element of `partner.I`, and so on.
+
+```{r}
+# Making up relationships.
+partner.G <- sample(length(gr), 10000, replace=TRUE)
+partner.I <- sample(length(ir), 10000, replace=TRUE)
+
+# Parallel entries across vectors are in a relationship:
+gr[partner.G[1]]
+ir[partner.I[1]]
+```
+
+It is then straightforward to construct an `IndexedRelations` object.
+While this example only uses two partnering features, the class can support any number of partners in a single object.
+
+```{r}
+# Easy but inefficient:
+library(IndexedRelations)
+rel <- IndexedRelations(list(gr[partner.G], ir[partner.I]))
+
+# More work but more efficient:
+rel <- IndexedRelations(list(partner.G, partner.I), list(gr, ir))
+rel
+```
+
+The key feature of the `IndexedRelations` class is that it does not actually store the partnering features explicitly.
+Rather, the relationships are internally represented by indices that point to sets of features.
+This avoids redundant representation of the same features when large numbers of relationships are to be stored,
+reducing memory use and improving the efficiency of algorithms that operate on these relationships.
+
+# Getters and setters
+
+Use the `partner()` method to extract the partners:
+
+```{r}
+# Extract partnering features:
+partner(rel, 1)
+partner(rel, 2)
+
+# Extract partnering indices only:
+head(partner(rel, 1, id=TRUE))
+head(partner(rel, 2, id=TRUE))
+```
+
+Use the `featureSets()` method to extract the feature sets:
+
+```{r}
+featureSets(rel)[[1]]
+featureSets(rel)[[2]]
+```
+
+The `IndexedRelations` object behaves like a vector.
+It has `length`, `names` and can be subsetted and combined.
+
+```{r}
+length(rel)
+length(rel[1:10,])
+length(c(rel, rel))
+```
+
+You can also set the partners or features on an existing `IndexedRelations` object:
+
+```{r}
+# Set partner with features.
+partner(rel, 2) <- ir[sample(length(ir), length(rel), replace=TRUE)]
+
+# Set partner with indices.
+partner(rel, 2, id=TRUE) <- sample(length(ir), length(rel), replace=TRUE)
+
+# Modify the first feature set.
+featureSets(rel)[[1]] <- resize(featureSets(rel)[[1]], 20)
+```
+
+In most cases, an `IndexedRelations` object will behave "as if" it were an object containing the partnering features explicitly.
+Users do not have to worry about the specifics of the index-based representation unless they are specifically manipulating it.
+
+# Conversions
+
+The `IndexedRelations` object can be converted to and from some similar classes.
+The most obvious of these is the `Pairs` class from `r Biocpkg("S4Vectors")`^[Of course, this only works if the `IndexedRelations` object has two partners!]:
+
+```{r}
+makePairsFromIndexedRelations(rel)
+
+p <- Pairs(gr[1:10], ir[1:10])
+as(p, "IndexedRelations")
+```
+
+Another option is to convert to and from a `DataFrame` object.
+This provides a quick and general method to "realize" the indices into the partnering features.
+
+```{r}
+as(rel, "DataFrame")
+```
+
+# Session info
+
+```{r}
+sessionInfo()
+```
