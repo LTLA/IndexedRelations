@@ -55,12 +55,16 @@ makePairsFromIndexedRelations <- function(x) {
 #' @importClassesFrom S4Vectors Pairs
 #' @importFrom S4Vectors first second
 setAs("Pairs", "IndexedRelations", function(from) {
-    IndexedRelations(list(first=first(p), second=second(p)))
+    out <- IndexedRelations(list(first=first(from), second=second(from)))
+    names(out) <- names(from)
+    out
 })
 
 #' @importClassesFrom S4Vectors DataFrame
 setAs("DataFrame", "IndexedRelations", function(from) {
-    IndexedRelations(from)
+    out <- IndexedRelations(as.list(from))
+    names(out) <- rownames(from)
+    out
 })
 
 #' @importClassesFrom S4Vectors DataFrame
@@ -71,5 +75,7 @@ setAs("IndexedRelations", "DataFrame", function(from) {
         output[[i]] <- I(partner(from, i))
     }
     names(output) <- partnerNames(from)
-    do.call(DataFrame, output)
+    df <- do.call(DataFrame, output)
+    rownames(df) <- names(from)
+    df
 })
