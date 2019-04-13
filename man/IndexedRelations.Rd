@@ -4,6 +4,33 @@
 \name{IndexedRelations}
 \alias{IndexedRelations}
 \alias{IndexedRelations-class}
+\alias{partners}
+\alias{partners,IndexedRelations-method}
+\alias{partners<-}
+\alias{partners<-,IndexedRelations-method}
+\alias{partnerNames}
+\alias{partnerNames,IndexedRelations-method}
+\alias{partnerNames<-}
+\alias{partnerNames<-,IndexedRelations-method}
+\alias{partner}
+\alias{partner,IndexedRelations-method}
+\alias{partner<-}
+\alias{partner<-,IndexedRelations-method}
+\alias{featureSetNames}
+\alias{featureSetNames,IndexedRelations-method}
+\alias{featureSetNames<-}
+\alias{featureSetNames<-,IndexedRelations-method}
+\alias{featureSets}
+\alias{featureSets,IndexedRelations-method}
+\alias{featureSets<-}
+\alias{featureSets<-,IndexedRelations-method}
+\alias{mapping}
+\alias{mapping,IndexedRelations-method}
+\alias{parallelSlotNames,IndexedRelations-method}
+\alias{show,IndexedRelations-method}
+\alias{names,IndexedRelations-method}
+\alias{names<-,IndexedRelations-method}
+\alias{bindROWS,IndexedRelations-method}
 \title{The IndexedRelations class}
 \description{
 The IndexedRelations class is designed to represent relationships between feature sets (e.g., genes, genomic regions, proteins).
@@ -111,7 +138,7 @@ partner2 <- sample(length(enhancers), 100, replace=TRUE)
 rel <- IndexedRelations(
     list(
         promoter=promoters[partner1],
-        enhacner=enhancers[partner2]
+        enhancer=enhancers[partner2]
     )
 )
 

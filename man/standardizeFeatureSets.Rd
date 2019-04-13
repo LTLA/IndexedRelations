@@ -40,7 +40,7 @@ enhancers <- GRanges("chrA", IRanges(1:20*10, 1:20*10+10))
 partner1 <- sample(length(promoters), 100, replace=TRUE)
 partner2 <- sample(length(enhancers), 100, replace=TRUE)
 
-rel <- IndexedRelations(
+rel1 <- IndexedRelations(
     list(promoter=partner1, enhancer=partner2),
     featureSets=list(promoters=promoters, enhancers=enhancers)
 )
