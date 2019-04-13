@@ -15,6 +15,7 @@ vignette: >
 ---
 
 ```{r, echo=FALSE, results="hide", message=FALSE}
+library(BiocStyle)
 require(knitr)
 opts_chunk$set(error=FALSE, message=FALSE, warning=FALSE)
 ```

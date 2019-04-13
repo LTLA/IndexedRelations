@@ -97,7 +97,7 @@
 #' rel <- IndexedRelations(
 #'     list(
 #'         promoter=promoters[partner1],
-#'         enhacner=enhancers[partner2]
+#'         enhancer=enhancers[partner2]
 #'     )
 #' )
 #' 
@@ -160,17 +160,16 @@
 #' @name IndexedRelations
 #' @docType class
 #' @aliases IndexedRelations-class IndexedRelations
-#' @aliases partners partners,IndexedRelations-method partners<- partners<-,IndexedRelations-method
-#' @aliases partnerNames partnerNames,IndexedRelations-method partnerNames<- partnerNames<-,IndexedRelations-method
-#' @aliases partner partner,IndexedRelations-method partner<- partner<-,IndexedRelations-method
-#' @aliases features features,IndexedRelations-method features<- features<-,IndexedRelations-method
-#' @aliases featureNames featureNames,IndexedRelations-method featureNames<- featureNames<-,IndexedRelations-method
-#' @aliases feature feature,IndexedRelations-method feature<- feature<-,IndexedRelations-method
-#' @aliases mapping mapping,IndexedRelations-method
-#' @aliases parallelSlotNames,IndexedRelations-method
-#' @aliases show,IndexedRelations-method
-#' @aliases names,IndexedRelations-method names<-,IndexedRelations-method
-#' @aliases bindROWS,IndexedRelations-method
+#' partners partners,IndexedRelations-method partners<- partners<-,IndexedRelations-method
+#' partnerNames partnerNames,IndexedRelations-method partnerNames<- partnerNames<-,IndexedRelations-method
+#' partner partner,IndexedRelations-method partner<- partner<-,IndexedRelations-method
+#' featureSetNames featureSetNames,IndexedRelations-method featureSetNames<- featureSetNames<-,IndexedRelations-method
+#' featureSets featureSets,IndexedRelations-method featureSets<- featureSets<-,IndexedRelations-method
+#' mapping mapping,IndexedRelations-method
+#' parallelSlotNames,IndexedRelations-method
+#' show,IndexedRelations-method
+#' names,IndexedRelations-method names<-,IndexedRelations-method
+#' bindROWS,IndexedRelations-method
 NULL
 
 #' @export

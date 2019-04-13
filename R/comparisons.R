@@ -11,10 +11,10 @@
 #' This contains negative, zero or positive values if the entry in \code{x} is \dQuote{less than}, equal to or \dQuote{greater than} the corresponding entry of \code{y}, respectively.
 #' Entries from the shorter object are recycled to reach the length of the longer object; unless one is of zero length, in which case an empty integer vector is returned.
 #' 
-#' The definition of \dQuote{less than}, etc., is based on comparisons between partners between \code{x} and \code{y}.
-#' The first partners (i.e., \code{partner(x, 1)}) are compared; of those that are equal, the second partners are compared; and so on.
-#' The definition of equality for partner comparisons are based on the equivalent definition for the partner's feature class. 
-#' For example, if the first feature set was a \linkS4class{IRanges} object, intervals with smaller start positions would be considered to be less than other intervals.
+#' The definitions of \dQuote{less than}, etc., for relationships are based on comparisons between the partners involved.
+#' The first partner from each relationship are compared; if those are equal, the second partners are compared; and so on.
+#' If all partners are equal, the relationships are equal.
+#' Comparisons between partners are performed based on the definitions of (in)equality for that partner's feature class.
 #'
 #' @section Matching:
 #' \code{match(x, table, nomatch = NA_integer_, incomparables = NULL, ...)} takes two IndexedRelations objects \code{x} and \code{table}.
@@ -67,8 +67,8 @@
 #' @rdname comparisons
 #' @name comparisons
 #' @aliases pcompare,IndexedRelations,IndexedRelations-method
-#' @aliases match,IndexedRelations,IndexedRelations-method selfmatch,IndexedRelations-method
-#' @aliases order,IndexedRelations-method
+#' match,IndexedRelations,IndexedRelations-method selfmatch,IndexedRelations-method
+#' order,IndexedRelations-method
 NULL
 
 #' @export
