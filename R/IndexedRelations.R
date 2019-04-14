@@ -80,8 +80,9 @@
 #' The same principle applies for subset assignment.
 #' 
 #' @section Miscellaneous:
-#' \code{show(x)} will show information about an IndexedRelations \code{x}, including a preview of the \code{\link{head}} relationships.
-#' Only the top elements are shown to avoid inconsistencies with the display of arbitrary Vector-like feature sets. 
+#' \code{show(x)} will show information about an IndexedRelations \code{x}, including a preview of the first and last relationships.
+#' Note that the feature classes must have methods implemented for \code{\link{showAsCell}} in order for correct display of the partner features.
+#' 
 #'
 #' @author Aaron Lun
 #' @examples
@@ -380,46 +381,6 @@ setMethod("bindROWS", "IndexedRelations", function(x, objects = list(), use.name
 #################
 
 #' @export
-#' @importFrom methods show
-#' @importFrom S4Vectors mcols metadata
-#' @importFrom utils head capture.output
-setMethod("show", "IndexedRelations", function(object) {
-    N <- length(object)
-    cat(sprintf("%s containing %i relation%s\n", class(object), N, if (N==1L) "" else "s"))
-
-    .meta_print <- function(meta, msg) {
-        meta.names <- names(meta) 
-        if (length(meta.names) > 4) meta.names <- c(head(meta.names, 3), "...") 
-        meta.names <- if (length(meta.names)) paste0(vapply(meta.names, deparse, FUN.VALUE=""), collapse=" ") else ""
-        cat(sprintf("%s names(%i): %s\n", msg, length(meta), meta.names))
-    }
-    .meta_print(mcols(object), "mcols")
-    .meta_print(metadata(object), "metadata")
-
-    p <- partners(object)
-    pn <- partnerNames(object)
-    fn <- featureSetNames(object)
-
-    for (i in seq_len(ncol(p))) {
-        cat("\n")
-        pname <- sprintf("Partner %i", i)
-        if (!is.null(pn)) { pname <- paste0(pname, " (", deparse(pn[i]), ")") }
-
-        j <- .map2store(object, i)
-        fname <- sprintf("from feature set %i", j)
-        if (!is.null(fn)) { fname <- paste0(fname, " (", deparse(fn[j]), ")") }
-        cat(paste0(pname, " ", fname, "\n"))
-
-        cur.p <- head(p[,i])
-        cur.store <- featureSets(object)[[j]]
-        cur.p <- cur.store[cur.p]
-        X <- capture.output(show(cur.p))
-        X <- sprintf("head| %s", X)
-        cat(X, sep="\n")
-    }
-})
-
-#' @export
 setMethod("names", "IndexedRelations", function(x) rownames(partners(x)))
 
 #' @export
@@ -427,4 +388,3 @@ setReplaceMethod("names", "IndexedRelations", function(x, value) {
     rownames(partners(x)) <- value
     x
 })
-
