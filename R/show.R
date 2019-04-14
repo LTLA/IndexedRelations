@@ -13,7 +13,7 @@
     x_mcols <- mcols(x, use.names = FALSE)
     if (!is.null(x_mcols) && ncol(x_mcols) > 0L) {
         tmp <- do.call(data.frame, c(lapply(x_mcols, showAsCell), list(check.names = FALSE)))
-        ans <- cbind(ans, `|` = rep.int("|", x_len), as.matrix(tmp))
+        ans <- cbind(ans, `|` = rep.int("|", length(x)), as.matrix(tmp))
     }
 
     ans
