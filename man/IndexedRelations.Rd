@@ -16,6 +16,8 @@
 \alias{partner,IndexedRelations-method}
 \alias{partner<-}
 \alias{partner<-,IndexedRelations-method}
+\alias{npartners}
+\alias{npartners,IndexedRelations-method}
 \alias{featureSetNames}
 \alias{featureSetNames,IndexedRelations-method}
 \alias{featureSetNames<-}
@@ -24,6 +26,8 @@
 \alias{featureSets,IndexedRelations-method}
 \alias{featureSets<-}
 \alias{featureSets<-,IndexedRelations-method}
+\alias{nfeatureSets}
+\alias{nfeatureSets,IndexedRelations-method}
 \alias{mapping}
 \alias{mapping,IndexedRelations-method}
 \alias{parallelSlotNames,IndexedRelations-method}
@@ -77,10 +81,12 @@ This may be \code{NULL} if the partners are not named.}
 \item{\code{partner(x, type, id=FALSE)}:}{If \code{id=TRUE}, this returns an integer index for the partner specified by \code{type}.
 If \code{id=FALSE}, this returns the partners as features.
 \code{type} can be an integer scalar or a string if the partners are named.}
+\item{\code{npartners(x)}:}{Returns an integer scalar specifying the number of partners per relationship in \code{x}.}
 \item{\code{featureSets(x)}:}{Returns a \linkS4class{List} of feature sets.
 Each entry corresponds to a separate feature set.}
 \item{\code{featureSetNames(x)}:}{Returns a character vector of names used for each feature set.
 This may be \code{NULL} if the feature sets are not named.}
+\item{\code{nfeatureSets(x)}:}{Returns an integer scalar specifying the number of feature sets in \code{x}.}
 \item{\code{mapping(x)}:}{Returns an integer vector specifying the mapping from partners to feature sets.
 The indices of the \code{i}th partner point towards \code{featureSets(x)[[mapping(x)[i]]]}.}
 }
@@ -119,8 +125,8 @@ The same principle applies for subset assignment.
 
 \section{Miscellaneous}{
 
-\code{show(x)} will show information about an IndexedRelations \code{x}, including a preview of the \code{\link{head}} relationships.
-Only the top elements are shown to avoid inconsistencies with the display of arbitrary Vector-like feature sets.
+\code{show(x)} will show information about an IndexedRelations \code{x}, including a preview of the first and last relationships.
+Note that the feature classes must have methods implemented for \code{\link{showAsCell}} in order for correct display of the partner features.
 }
 
 \examples{
