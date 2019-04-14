@@ -39,7 +39,7 @@ NULL
 #' @export
 #' @importFrom S4Vectors Pairs mcols
 makePairsFromIndexedRelations <- function(x) {
-    if (ncol(partners(x))!=2) {
+    if (npartners(x)!=2) {
         stop("'x' must have two partners to create Pairs")
     }
 
@@ -70,7 +70,7 @@ setAs("DataFrame", "IndexedRelations", function(from) {
 #' @importClassesFrom S4Vectors DataFrame
 #' @importFrom S4Vectors DataFrame
 setAs("IndexedRelations", "DataFrame", function(from) {
-    output <- vector("list", ncol(partners(from)))
+    output <- vector("list", npartners(from))
     for (i in seq_along(output)) {
         output[[i]] <- I(partner(from, i))
     }

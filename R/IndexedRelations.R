@@ -42,10 +42,12 @@
 #' \item{\code{partner(x, type, id=FALSE)}:}{If \code{id=TRUE}, this returns an integer index for the partner specified by \code{type}.
 #' If \code{id=FALSE}, this returns the partners as features.
 #' \code{type} can be an integer scalar or a string if the partners are named.}
+#' \item{\code{npartners(x)}:}{Returns an integer scalar specifying the number of partners per relationship in \code{x}.}
 #' \item{\code{featureSets(x)}:}{Returns a \linkS4class{List} of feature sets.
 #' Each entry corresponds to a separate feature set.}
 #' \item{\code{featureSetNames(x)}:}{Returns a character vector of names used for each feature set.
 #' This may be \code{NULL} if the feature sets are not named.}
+#' \item{\code{nfeatureSets(x)}:}{Returns an integer scalar specifying the number of feature sets in \code{x}.}
 #' \item{\code{mapping(x)}:}{Returns an integer vector specifying the mapping from partners to feature sets.
 #' The indices of the \code{i}th partner point towards \code{featureSets(x)[[mapping(x)[i]]]}.}
 #' }
@@ -163,8 +165,10 @@
 #' partners partners,IndexedRelations-method partners<- partners<-,IndexedRelations-method
 #' partnerNames partnerNames,IndexedRelations-method partnerNames<- partnerNames<-,IndexedRelations-method
 #' partner partner,IndexedRelations-method partner<- partner<-,IndexedRelations-method
+#' npartners npartners,IndexedRelations-method
 #' featureSetNames featureSetNames,IndexedRelations-method featureSetNames<- featureSetNames<-,IndexedRelations-method
 #' featureSets featureSets,IndexedRelations-method featureSets<- featureSets<-,IndexedRelations-method
+#' nfeatureSets nfeatureSets,IndexedRelations-method
 #' mapping mapping,IndexedRelations-method
 #' parallelSlotNames,IndexedRelations-method
 #' show,IndexedRelations-method
@@ -263,6 +267,9 @@ setMethod("partners", "IndexedRelations", function(x) x@partners)
 setMethod("partnerNames", "IndexedRelations", function(x) names(partners(x)))
 
 #' @export
+setMethod("npartners", "IndexedRelations", function(x) ncol(partners(x)))
+
+#' @export
 setMethod("partner", "IndexedRelations", function(x, type, id=FALSE) {
     ids <- partners(x)[[type]]
     if (id) {
@@ -326,6 +333,9 @@ setMethod("featureSets", "IndexedRelations", function(x) x@featureSets)
 
 #' @export
 setMethod("featureSetNames", "IndexedRelations", function(x) names(featureSets(x)))
+
+#' @export
+setMethod("nfeatureSets", "IndexedRelations", function(x) length(featureSets(x)))
 
 #' @export
 setReplaceMethod("featureSets", "IndexedRelations", function(x, value) {
