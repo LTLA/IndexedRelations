@@ -43,8 +43,8 @@ makePairsFromIndexedRelations <- function(x) {
         stop("'x' must have two partners to create Pairs")
     }
 
-    left <- partner(x, 1)
-    right <- partner(x, 2)
+    left <- partnerFeatures(x, 1)
+    right <- partnerFeatures(x, 2)
 
     meta <- mcols(x)
     if (is.null(meta)) meta <- new("DataFrame", nrows=length(x))
@@ -72,7 +72,7 @@ setAs("DataFrame", "IndexedRelations", function(from) {
 setAs("IndexedRelations", "DataFrame", function(from) {
     output <- vector("list", npartners(from))
     for (i in seq_along(output)) {
-        output[[i]] <- I(partner(from, i))
+        output[[i]] <- I(partnerFeatures(from, i))
     }
     names(output) <- partnerNames(from)
     df <- do.call(DataFrame, output)

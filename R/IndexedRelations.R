@@ -39,8 +39,7 @@
 #' }
 #' \item{\code{partnerNames(x)}:}{Returns a character vector of names used for each parter in a relationship.
 #' This may be \code{NULL} if the partners are not named.}
-#' \item{\code{partner(x, type, id=FALSE)}:}{If \code{id=TRUE}, this returns an integer index for the partner specified by \code{type}.
-#' If \code{id=FALSE}, this returns the partners as features.
+#' \item{\code{partnerFeatures(x, type)}:}{Returns the partners as features, by using the indices to subset the feature set.
 #' \code{type} can be an integer scalar or a string if the partners are named.}
 #' \item{\code{npartners(x)}:}{Returns an integer scalar specifying the number of partners per relationship in \code{x}.}
 #' \item{\code{featureSets(x)}:}{Returns a \linkS4class{List} of feature sets.
@@ -60,9 +59,8 @@
 #' \code{value} should have the same number of columns as \code{partners(x)},
 #' and should contain integer indices that point to valid entries of the corresponding feature set.}
 #' \item{\code{partnerNames(x) <- value}:}{Replaces the names used for each partner with \code{value}, a character vector or \code{NULL}.}
-#' \item{\code{partner(x, type, id=FALSE) <- value}:}{If \code{id=TRUE}, this replaces the indices for the partner specified by \code{type} with new integer indices in \code{value}.
-#' If \code{id=TRUE}, \code{value} is assumed to contain the partners as features,
-#' and replacement is performed while appending new features to the corresponding feature set in \code{featureSets(x)}.
+#' \item{\code{partnerFeatures(x, type) <- value}:}{Replaces the partners specified by \code{type} with new features in \code{value}.
+#' Replacement is performed while appending new features to the corresponding feature set in \code{featureSets(x)}.
 #' \code{type} can be an integer scalar or a string if the partners are named.}
 #' \item{\code{featureSets(x) <- value}:}{Replaces the feature sets with \code{value}.
 #' \code{value} should have the same number of feature sets as \code{featureSets(x)},
@@ -118,8 +116,8 @@
 #'
 #' partners(rel)
 #' partnerNames(rel)
-#' partner(rel, "promoter")
-#' partner(rel, 1, id=TRUE)
+#' partnerFeatures(rel, "promoter")
+#' partnerFeatures(rel, 1)
 #' partnerNames(rel)
 #' 
 #' featureSets(rel)
@@ -138,12 +136,9 @@
 #' partnerNames(rel2) <- c("P", "E")
 #' partnerNames(rel2)
 #'
-#' partner(rel2, "P") <- rev(partner(rel2, "P")) # by feature
+#' partnerFeatures(rel2, "P") <- rev(partnerFeatures(rel2, "P")) # by feature
 #' partners(rel2)
 #'
-#' partner(rel2, "E", id=TRUE) <- rev(partner(rel2, "E", id=TRUE)) # by ID
-#' partners(rel2)
-#' 
 #' featureSets(rel2)$promoters <- resize(featureSets(rel2)$promoters, width=25)
 #' featureSets(rel2)$promoters
 #' 
@@ -271,12 +266,8 @@ setMethod("partnerNames", "IndexedRelations", function(x) names(partners(x)))
 setMethod("npartners", "IndexedRelations", function(x) ncol(partners(x)))
 
 #' @export
-setMethod("partner", "IndexedRelations", function(x, type, id=FALSE) {
+setMethod("partnerFeatures", "IndexedRelations", function(x, type) {
     ids <- partners(x)[[type]]
-    if (id) {
-        return(ids)
-    }
-
     ftype <- .map2store(x, type)
     cur.store <- featureSets(x)[[ftype]]
     cur.store[ids]
@@ -312,15 +303,12 @@ setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
 }
 
 #' @export
-setReplaceMethod("partner", "IndexedRelations", function(x, type, id=FALSE, ..., value) {
-    if (!id) { 
-        ftype <- .map2store(x, type)
-        cur.store <- featureSets(x)[[ftype]]
-        combined <- .combine_features(value, cur.store)
-        value <- combined$id
-        featureSets(x)[[ftype]] <- combined$ref
-    }
-
+setReplaceMethod("partnerFeatures", "IndexedRelations", function(x, type, ..., value) {
+    ftype <- .map2store(x, type)
+    cur.store <- featureSets(x)[[ftype]]
+    combined <- .combine_features(value, cur.store)
+    value <- combined$id
+    featureSets(x)[[ftype]] <- combined$ref
     partners(x)[[type]] <- value 
     x
 })

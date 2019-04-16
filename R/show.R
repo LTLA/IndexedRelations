@@ -5,7 +5,7 @@
 .makeNakedMatFromIndexedRelations <- function(x) {
     collected <- vector("list", npartners(x))
     for (i in seq_along(collected)) {
-        collected[[i]] <- showAsCell(partner(x, i))
+        collected[[i]] <- showAsCell(partnerFeatures(x, i))
     }
     ans <- do.call(cbind, collected)
     colnames(ans) <- partnerNames(x)

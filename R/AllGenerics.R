@@ -8,7 +8,7 @@ setGeneric("partnerNames", function(x) standardGeneric("partnerNames"))
 setGeneric("npartners", function(x) standardGeneric("npartners"))
 
 #' @export
-setGeneric("partner", function(x, ...) standardGeneric("partner"))
+setGeneric("partnerFeatures", function(x, ...) standardGeneric("partnerFeatures"))
 
 #' @export
 setGeneric("partners<-", function(x, value) standardGeneric("partners<-"))
@@ -17,7 +17,7 @@ setGeneric("partners<-", function(x, value) standardGeneric("partners<-"))
 setGeneric("partnerNames<-", function(x, value) standardGeneric("partnerNames<-"))
 
 #' @export
-setGeneric("partner<-", function(x, ..., value) standardGeneric("partner<-"))
+setGeneric("partnerFeatures<-", function(x, ..., value) standardGeneric("partnerFeatures<-"))
 
 #' @export
 setGeneric("featureSets", function(x) standardGeneric("featureSets"))
