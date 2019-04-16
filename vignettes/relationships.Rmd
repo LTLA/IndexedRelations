@@ -82,16 +82,15 @@ reducing memory use and improving the efficiency of algorithms that operate on t
 
 # Getters and setters
 
-Use the `partner()` method to extract the partners:
+Use the `partnerFeatures()` and `partners()` methods to extract the partners:
 
 ```{r}
 # Extract partnering features:
-partner(rel, 1)
-partner(rel, 2)
+partnerFeatures(rel, 1)
+partnerFeatures(rel, 2)
 
 # Extract partnering indices only:
-head(partner(rel, 1, id=TRUE))
-head(partner(rel, 2, id=TRUE))
+partners(rel)
 ```
 
 Use the `featureSets()` method to extract the feature sets:
@@ -114,10 +113,10 @@ You can also set the partners or features on an existing `IndexedRelations` obje
 
 ```{r}
 # Set partner with features.
-partner(rel, 2) <- ir[sample(length(ir), length(rel), replace=TRUE)]
+partnerFeatures(rel, 2) <- ir[sample(length(ir), length(rel), replace=TRUE)]
 
 # Set partner with indices.
-partner(rel, 2, id=TRUE) <- sample(length(ir), length(rel), replace=TRUE)
+partners(rel)[,2] <- sample(length(ir), length(rel), replace=TRUE)
 
 # Modify the first feature set.
 featureSets(rel)[[1]] <- resize(featureSets(rel)[[1]], 20)
@@ -125,6 +124,32 @@ featureSets(rel)[[1]] <- resize(featureSets(rel)[[1]], 20)
 
 In most cases, an `IndexedRelations` object will behave "as if" it were an object containing the partnering features explicitly.
 Users do not have to worry about the specifics of the index-based representation unless they are specifically manipulating it.
+
+# Comparisons
+
+Users can compare different `IndexedRelations` objects with the same feature classes.
+One relationship is considered "less than" or "greater than" another based on the first non-equal partner and the definitions of inequality for that partner's feature class.
+
+```{r}
+scrambled <- sample(rel)
+summary(scrambled < rel)
+```
+
+Relationships can be sorted based on the ordering of the partner features.
+Specifically, the order of the relationships is defined based on the ordering of the first partner;
+if those are equal, the second partner; and so on.
+
+```{r}
+sort(rel)
+```
+
+It is also possible to match relationships across different `IndexedRelations` objects.
+Note that all of these methods are agnostic to the identities of the underlying feature sets, as long as the feature classes are comparable across objects.
+
+```{r}
+m <- match(rel, scrambled)
+head(m)
+```
 
 # Conversions
 
