@@ -5,7 +5,7 @@ Title: Representing Indexed Relationships Between Features
 Authors@R: person("Aaron", "Lun", role = c("aut", "cre"), 
     email = "infinite.monkeys.with.keyboards@gmail.com")
 Depends: S4Vectors
-Imports: BiocGenerics, methods, utils
+Imports: BiocGenerics, methods
 Suggests: testthat, knitr, rmarkdown, BiocStyle, GenomicRanges,
     IRanges
 biocViews: Infrastructure, DataRepresentation
