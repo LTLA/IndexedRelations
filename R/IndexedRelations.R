@@ -160,7 +160,7 @@
 #' @aliases IndexedRelations-class IndexedRelations
 #' partners partners,IndexedRelations-method partners<- partners<-,IndexedRelations-method
 #' partnerNames partnerNames,IndexedRelations-method partnerNames<- partnerNames<-,IndexedRelations-method
-#' partner partner,IndexedRelations-method partner<- partner<-,IndexedRelations-method
+#' partnerFeatures partnerFeatures,IndexedRelations-method partnerFeatures<- partnerFeatures<-,IndexedRelations-method
 #' npartners npartners,IndexedRelations-method
 #' featureSetNames featureSetNames,IndexedRelations-method featureSetNames<- featureSetNames<-,IndexedRelations-method
 #' featureSets featureSets,IndexedRelations-method featureSets<- featureSets<-,IndexedRelations-method
