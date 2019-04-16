@@ -103,49 +103,49 @@ test_that("other names getting and setting works", {
 test_that("partner getter works correctly", {
     ir <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
 
-    expect_identical(partner(ir, 1), r1[i1])
-    expect_identical(partner(ir, 2), r2[i2])
-    expect_identical(partner(ir, 3), r3[i3])
+    expect_identical(partnerFeatures(ir, 1), r1[i1])
+    expect_identical(partnerFeatures(ir, 2), r2[i2])
+    expect_identical(partnerFeatures(ir, 3), r3[i3])
 
-    expect_identical(partner(ir, 1, id=TRUE), i1)
-    expect_identical(partner(ir, 2, id=TRUE), i2)
-    expect_identical(partner(ir, 3, id=TRUE), i3)
+    expect_identical(partners(ir)[,1], i1)
+    expect_identical(partners(ir)[,2], i2)
+    expect_identical(partners(ir)[,3], i3)
 
     # Works by name.
     ir <- IndexedRelations(list(A=i1, B=i2, C=i3), list(r1, r2, r3))
-    expect_identical(partner(ir, "A", id=TRUE), i1)
-    expect_identical(partner(ir, "B", id=TRUE), i2)
-    expect_identical(partner(ir, "C", id=TRUE), i3)
+    expect_identical(partners(ir)[,"A"], i1)
+    expect_identical(partners(ir)[,"B"], i2)
+    expect_identical(partners(ir)[,"C"], i3)
 
-    expect_identical(partner(ir, "A"), r1[i1])
-    expect_identical(partner(ir, "B"), r2[i2])
-    expect_identical(partner(ir, "C"), r3[i3])
+    expect_identical(partnerFeatures(ir, "A"), r1[i1])
+    expect_identical(partnerFeatures(ir, "B"), r2[i2])
+    expect_identical(partnerFeatures(ir, "C"), r3[i3])
 })
 
 test_that("partner setter works correctly (same feature set)", {
     ir.0 <- ir <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
 
-    partner(ir, 1) <- rev(r1[i1])
-    expect_identical(partner(ir, 1), r1[rev(i1)])
-    expect_identical(partner(ir, 1, id=TRUE), rev(i1))
+    partnerFeatures(ir, 1) <- rev(r1[i1])
+    expect_identical(partnerFeatures(ir, 1), r1[rev(i1)])
+    expect_identical(partners(ir)[,1], rev(i1))
     expect_identical(featureSets(ir), featureSets(ir.0))
 
-    partner(ir, 2, id=TRUE) <- rev(i2)
-    expect_identical(partner(ir, 2), r2[rev(i2)])
-    expect_identical(partner(ir, 2, id=TRUE), rev(i2))
+    partners(ir)[,2] <- rev(i2)
+    expect_identical(partnerFeatures(ir, 2), r2[rev(i2)])
+    expect_identical(partners(ir)[,2], rev(i2))
     expect_identical(featureSets(ir), featureSets(ir.0))
 
     # Works by name.
     ir <- IndexedRelations(list(A=i1, B=i2, C=i3), list(r1, r2, r3))
 
-    partner(ir, "A") <- rev(r1[i1])
-    expect_identical(partner(ir, "A"), r1[rev(i1)])
-    expect_identical(partner(ir, "A", id=TRUE), rev(i1))
+    partnerFeatures(ir, "A") <- rev(r1[i1])
+    expect_identical(partnerFeatures(ir, "A"), r1[rev(i1)])
+    expect_identical(partners(ir)[,"A"], rev(i1))
     expect_identical(featureSets(ir), featureSets(ir.0)) 
 
-    partner(ir, "B", id=TRUE) <- rev(i2)
-    expect_identical(partner(ir, "B"), r2[rev(i2)])
-    expect_identical(partner(ir, "B", id=TRUE), rev(i2))
+    partners(ir)[,"B"] <- rev(i2)
+    expect_identical(partnerFeatures(ir, "B"), r2[rev(i2)])
+    expect_identical(partners(ir)[,"B"], rev(i2))
     expect_identical(featureSets(ir), featureSets(ir.0))
 })
 
@@ -156,9 +156,9 @@ test_that("partner setter works correctly (different feature set)", {
     new.ranges <- random_ranges(length(ir)) 
     width(new.ranges) <- max(width(r1))+1 
 
-    partner(ir, 1) <- new.ranges
-    expect_identical(partner(ir, 1), new.ranges)
-    expect_identical(partner(ir, 1, id=TRUE), match(new.ranges, unique(new.ranges)) + length(r1))
+    partnerFeatures(ir, 1) <- new.ranges
+    expect_identical(partnerFeatures(ir, 1), new.ranges)
+    expect_identical(partners(ir)[,1], match(new.ranges, unique(new.ranges)) + length(r1))
     expect_identical(featureSets(ir)[[1]], c(r1, unique(new.ranges)))
 
     # Partially unique from 'r2'.
@@ -166,9 +166,9 @@ test_that("partner setter works correctly (different feature set)", {
     new.ranges <- random_ranges(10)
     width(new.ranges) <- max(width(r2))+1 
 
-    partner(ir, 2)[chosen] <- new.ranges
-    expect_identical(partner(ir, 2)[-chosen], r2[i2[-chosen]])
-    expect_identical(partner(ir, 2)[chosen], new.ranges)
+    partnerFeatures(ir, 2)[chosen] <- new.ranges
+    expect_identical(partnerFeatures(ir, 2)[-chosen], r2[i2[-chosen]])
+    expect_identical(partnerFeatures(ir, 2)[chosen], new.ranges)
     expect_identical(featureSets(ir)[[2]], c(r2, unique(new.ranges[order(chosen)])))
 })
 
@@ -176,11 +176,11 @@ test_that("feature getter/setter works correctly", {
     ir <- IndexedRelations(list(i1, i2, i3), list(A=r1, B=r2, C=r3))
 
     featureSets(ir)[[1]] <- resize(featureSets(ir)[[1]], width=100)
-    expect_identical(partner(ir, 1), resize(r1[i1], width=100))
+    expect_identical(partnerFeatures(ir, 1), resize(r1[i1], width=100))
 
     X <- runif(length(r2))
     mcols(featureSets(ir)[["B"]])$blah <- X
-    expect_identical(mcols(partner(ir, 2))$blah, X[i2])
+    expect_identical(mcols(partnerFeatures(ir, 2))$blah, X[i2])
 })
 
 ############################
@@ -208,7 +208,7 @@ test_that("combining works correctly", {
     ir3 <- c(ir, irx)
 
     for (i in 1:3) {
-        expect_identical(partner(ir3, i), c(partner(ir, i), partner(irx, i)))
+        expect_identical(partnerFeatures(ir3, i), c(partnerFeatures(ir, i), partnerFeatures(irx, i)))
     }
 
     expect_identical(featureSets(ir3)[[1]], unique(c(r1, r3)))
@@ -235,9 +235,9 @@ test_that("subset assignment works correctly", {
     ir3[21:30] <- irx[1:10]
 
     for (i in 1:3) {
-        ref <- partner(ir, i)
-        ref[21:30] <- partner(irx, i)[1:10]
-        expect_identical(partner(ir3, i), ref)
+        ref <- partnerFeatures(ir, i)
+        ref[21:30] <- partnerFeatures(irx, i)[1:10]
+        expect_identical(partnerFeatures(ir3, i), ref)
     }
 
     expect_identical(featureSets(ir3)[[1]], unique(c(r1, r3)))

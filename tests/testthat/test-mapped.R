@@ -12,9 +12,9 @@ i3 <- sample(length(regions), 100, replace=TRUE)
 
 test_that("Getters work as expected on a singleton", {
     IR <- IndexedRelations(list(i1, i2, i3), featureSets=list(regions), mapping=c(1L,1L,1L))
-    expect_identical(partner(IR, 1), regions[i1])
-    expect_identical(partner(IR, 2), regions[i2])
-    expect_identical(partner(IR, 3), regions[i3])
+    expect_identical(partnerFeatures(IR, 1), regions[i1])
+    expect_identical(partnerFeatures(IR, 2), regions[i2])
+    expect_identical(partnerFeatures(IR, 3), regions[i3])
 
     expect_identical(length(featureSets(IR)), 1L)
     expect_identical(featureSets(IR)[[1]], regions)
@@ -26,26 +26,26 @@ test_that("Setters work as expected on a singleton", {
     IR <- IndexedRelations(list(i1, i2, i3), featureSets=list(regions), mapping=c(1L,1L,1L))
 
     # Replacing IDs.
-    partner(IR, 1, id=TRUE) <- rev(i1)
-    expect_identical(partner(IR, 1), regions[rev(i1)])
-    expect_identical(partner(IR, 2), regions[i2])
-    expect_identical(partner(IR, 3), regions[i3])
+    partners(IR)[,1] <- rev(i1)
+    expect_identical(partnerFeatures(IR, 1), regions[rev(i1)])
+    expect_identical(partnerFeatures(IR, 2), regions[i2])
+    expect_identical(partnerFeatures(IR, 3), regions[i3])
 
     # Replacing regions.
     new.regions <- random_ranges(100)
-    partner(IR, 1) <- new.regions
-    expect_identical(partner(IR, 1), new.regions)
-    expect_identical(partner(IR, 2), regions[i2])
-    expect_identical(partner(IR, 3), regions[i3])
+    partnerFeatures(IR, 1) <- new.regions
+    expect_identical(partnerFeatures(IR, 1), new.regions)
+    expect_identical(partnerFeatures(IR, 2), regions[i2])
+    expect_identical(partnerFeatures(IR, 3), regions[i3])
 
     expect_identical(featureSets(IR)[[1]], unique(c(regions, new.regions)))
 
     # Replacing features.
     IR <- IndexedRelations(list(i1, i2, i3), featureSets=list(regions), mapping=c(1L,1L,1L))
     featureSets(IR)[[1]] <- new.regions
-    expect_identical(partner(IR, 1), new.regions[i1])
-    expect_identical(partner(IR, 2), new.regions[i2])
-    expect_identical(partner(IR, 3), new.regions[i3])
+    expect_identical(partnerFeatures(IR, 1), new.regions[i1])
+    expect_identical(partnerFeatures(IR, 2), new.regions[i2])
+    expect_identical(partnerFeatures(IR, 3), new.regions[i3])
 })
 
 test_that("Subsetting and combining work correctly", {
@@ -69,7 +69,7 @@ test_that("Subsetting and combining work correctly", {
     expect_identical(featureSets(IR3)[[1]], unique(c(regions, featureSets(IRx)[[1]])))
 
     for (i in 1:3) {
-        expect_identical(partner(IR3, i),  c(partner(IR, i), partner(IRx, i)))
+        expect_identical(partnerFeatures(IR3, i),  c(partnerFeatures(IR, i), partnerFeatures(IRx, i)))
     }
 
     # Checking out the subset assignment.
@@ -86,9 +86,9 @@ test_that("Subsetting and combining work correctly", {
     expect_identical(featureSets(IR3)[[1]], unique(c(regions, featureSets(IRx)[[1]])))
 
     for (i in 1:3) {
-        P <- partner(IR, i)
-        P[chosen] <- partner(IRx, i)
-        expect_identical(partner(IRa, i), P)
+        P <- partnerFeatures(IR, i)
+        P[chosen] <- partnerFeatures(IRx, i)
+        expect_identical(partnerFeatures(IRa, i), P)
     }
 })
 

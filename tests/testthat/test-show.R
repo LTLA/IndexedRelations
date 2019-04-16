@@ -16,7 +16,7 @@ test_that("show method works correctly with any number of features", {
     show(rel)
 
     rel <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
-    show(rel)
+    expect_error(show(rel), NA) # need some expect statements to avoid skipping these.
 })
 
 test_that("show method works correctly with named features", {
@@ -27,7 +27,7 @@ test_that("show method works correctly with named features", {
     show(rel)
 
     names(rel) <- sprintf("RELATION_%i", seq_along(rel))
-    show(rel)
+    expect_error(show(rel), NA)
 })
 
 test_that("show method works correctly with metadata", {
@@ -39,10 +39,10 @@ test_that("show method works correctly with metadata", {
     show(rel)
 
     metadata(rel)$blah <- "BLAH" # should have no effect.
-    show(rel)
+    expect_error(show(rel), NA)
 })
 
 test_that("show method works correctly with empty objects", {
     rel <- IndexedRelations(list(A=i1, B=i2, C=i3), list(r1, r2, r3))
-    show(rel[0])
+    expect_error(show(rel[0]), NA)
 })

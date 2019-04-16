@@ -18,7 +18,7 @@ i3 <- sample(length(r3), N, replace=TRUE)
 REF_pcompare <- function(x, y) {
     output <- integer(max(length(x), length(y)))
     for (i in seq_len(ncol(partners(x)))) {
-        current <- pcompare(partner(x, i), partner(y, i))
+        current <- pcompare(partnerFeatures(x, i), partnerFeatures(y, i))
         undecided <- output==0L
         output[undecided] <- current[undecided]
     }
@@ -143,7 +143,7 @@ REF_order <- function(...) {
     objects <- list(...)
     for (i in seq_along(objects)) {
         x <- objects[[i]]
-        objects[[i]] <- lapply(seq_len(ncol(partners(x))), function(i) partner(x, i))
+        objects[[i]] <- lapply(seq_len(ncol(partners(x))), function(i) partnerFeatures(x, i))
     }
     objects <- unlist(objects, recursive=FALSE)
     do.call(order, objects)

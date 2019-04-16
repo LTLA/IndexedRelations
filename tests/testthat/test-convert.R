@@ -15,8 +15,8 @@ test_that("conversion to and from a Pairs object works correctly", {
     IR <- IndexedRelations(list(i1, i2), list(r1, r2))
 
     p <- makePairsFromIndexedRelations(IR)
-    expect_identical(first(p), partner(IR, 1))
-    expect_identical(second(p), partner(IR, 2))
+    expect_identical(first(p), partnerFeatures(IR, 1))
+    expect_identical(second(p), partnerFeatures(IR, 2))
 
     nr <- paste0("RELATION", seq_len(N))
     names(IR) <- nr
@@ -36,8 +36,8 @@ test_that("conversion to and from a DataFrame object works correctly", {
 
 # Putting them inside the DF erases the class attributes, for some weird reason.
     df <- as(IR, "DataFrame")
-#    expect_identical(df[,1], partner(IR, 1))
-#    expect_identical(df[,2], partner(IR, 2))
+#    expect_identical(df[,1], partnerFeatures(IR, 1))
+#    expect_identical(df[,2], partnerFeatures(IR, 2))
 
     nr <- paste0("RELATION", seq_len(N))
     names(IR) <- nr
