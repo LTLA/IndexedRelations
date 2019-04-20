@@ -55,10 +55,12 @@ standardizeFeatureSets <- function(x, objects, clean=FALSE)
     FUN <- function(z) unname(lapply(featureSets(z), class))
     ref.fcls <- FUN(x)
     obj.fcls <- lapply(objects, FUN)
+    ref.map <- mapping(x)
+    obj.map <- lapply(objects, mapping)
 
-    if (!.check_equality(ref.fcls, obj.fcls)) {
-        ref.fcls <- ref.fcls[mapping(x)]
-        obj.fcls <- mapply("[", obj.fcls, lapply(objects, mapping), SIMPLIFY=FALSE)
+    if (!.check_equality(ref.fcls, obj.fcls) || !.check_equality(ref.map, obj.map)) {
+        ref.fcls <- ref.fcls[ref.map]
+        obj.fcls <- mapply("[", obj.fcls, obj.map, SIMPLIFY=FALSE)
         if (!.check_equality(ref.fcls, obj.fcls)) {
             stop("feature sets are not comparable across objects")
         }

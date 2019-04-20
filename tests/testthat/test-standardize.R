@@ -21,8 +21,11 @@ test_that("standardizeFeatureSets works correctly with trivial mapping", {
 
     out <- standardizeFeatureSets(ir1, list(ir2))
     expect_identical(out$x, ir1)
-    expect_identical(featureSets(out$objects[[1]]), featureSets(ir1))
     expect_as_if(out$objects[[1]], ir2)
+
+    expect_identical(featureSets(out$objects[[1]]), featureSets(ir1))
+    expect_identical(mapping(out$x), 1:3)
+    expect_identical(mapping(out$objects[[1]]), 1:3)
 
     # Completely different feature set.
     a1 <- random_ranges(10)
@@ -39,7 +42,10 @@ test_that("standardizeFeatureSets works correctly with trivial mapping", {
 
     expect_as_if(out$x, ir1)
     expect_as_if(out$objects[[1]], ir3)
+
     expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
+    expect_identical(mapping(out$x), 1:3)
+    expect_identical(mapping(out$objects[[1]]), 1:3)
 
     # Behaves with multiple entries.
     b1 <- random_ranges(10)
@@ -57,8 +63,12 @@ test_that("standardizeFeatureSets works correctly with trivial mapping", {
     expect_as_if(out$x, ir1)
     expect_as_if(out$objects[[1]], ir3)
     expect_as_if(out$objects[[2]], ir4)
+
     expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
     expect_identical(featureSets(out$x), featureSets(out$objects[[2]]))
+
+    expect_identical(mapping(out$x), 1:3)
+    expect_identical(mapping(out$objects[[1]]), 1:3)
 })
 
 test_that("standardizeFeatureSets works correctly with single mapping", {
@@ -69,9 +79,13 @@ test_that("standardizeFeatureSets works correctly with single mapping", {
 
     out <- standardizeFeatureSets(ir1, list(ir2))
     expect_identical(out$x, ir1)
+    expect_as_if(out$objects[[1]], ir2)
+
     expect_identical(featureSets(out$objects[[1]]), featureSets(ir1))
     expect_identical(featureSets(out$x)[[1]], R)
-    expect_as_if(out$objects[[1]], ir2)
+
+    expect_identical(mapping(out$x), rep(1L, 3))
+    expect_identical(mapping(out$objects[[1]]), rep(1L, 3))
 
     # Completely different feature set.
     A <- random_ranges(30)
@@ -85,8 +99,12 @@ test_that("standardizeFeatureSets works correctly with single mapping", {
 
     expect_as_if(out$x, ir1)
     expect_as_if(out$objects[[1]], ir3)
+
     expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
     expect_identical(length(featureSets(out$x)), 1L)
+
+    expect_identical(mapping(out$x), rep(1L, 3))
+    expect_identical(mapping(out$objects[[1]]), rep(1L, 3))
 
     # Behaves with multiple entries.
     B <- random_ranges(10)
@@ -101,9 +119,13 @@ test_that("standardizeFeatureSets works correctly with single mapping", {
     expect_as_if(out$x, ir1)
     expect_as_if(out$objects[[1]], ir3)
     expect_as_if(out$objects[[2]], ir4)
+
     expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
     expect_identical(featureSets(out$x), featureSets(out$objects[[2]]))
     expect_identical(length(featureSets(out$x)), 1L)
+
+    expect_identical(mapping(out$x), rep(1L, 3))
+    expect_identical(mapping(out$objects[[1]]), rep(1L, 3))
 })
 
 test_that("standardizeFeatureSets works correctly with cross-mapping", {
@@ -116,6 +138,9 @@ test_that("standardizeFeatureSets works correctly with cross-mapping", {
     expect_as_if(ir2, out$objects[[1]])
     expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
     expect_identical(length(featureSets(out$x)), 3L)
+
+    expect_identical(mapping(out$x), 1:3)
+    expect_identical(mapping(out$objects[[1]]), 1:3)
 
     # Different feature sets.
     A <- random_ranges(30)
@@ -132,6 +157,24 @@ test_that("standardizeFeatureSets works correctly with cross-mapping", {
     expect_as_if(iry, out$objects[[1]])
     expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
     expect_identical(length(featureSets(out$x)), 3L)
+
+    expect_identical(mapping(out$x), 1:3)
+    expect_identical(mapping(out$objects[[1]]), 1:3)
+})
+
+test_that("standardizeFeatureSets responds to changes ONLY in mapping", {
+    ir1 <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
+    ir2 <- IndexedRelations(list(i3, i2, i1), list(r1, r2, r3), mapping=3:1)
+
+    out <- standardizeFeatureSets(ir1, list(ir2))
+    expect_as_if(ir1, out$x)
+    expect_as_if(ir2, out$objects[[1]])
+
+    expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
+    expect_identical(length(featureSets(out$x)), 3L)
+
+    expect_identical(mapping(out$x), 1:3)
+    expect_identical(mapping(out$objects[[1]]), 1:3)
 })
 
 ################################
