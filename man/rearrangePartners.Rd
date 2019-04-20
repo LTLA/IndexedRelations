@@ -19,10 +19,13 @@ Rearrange partners in an \linkS4class{IndexedRelations} object.
 }
 \details{
 This function facilitates the task of switching the order of partners across all relationships in \code{x}.
+Note that the length of \code{perm} need not be the as \code{ncol(partners(x))};
+partners can be dropped, duplicated, etc.
 }
 \examples{
+library(GenomicRanges)
 genomic <- GRanges("chrA", IRanges(1:10*20, 1:10*20+10))
-intervals <- IRanges(1:20*10, 1:20*10+10))
+intervals <- IRanges(1:20*10, 1:20*10+10)
 
 rel <- IndexedRelations(list(1:2, 1:2), list(genomic, intervals))
 

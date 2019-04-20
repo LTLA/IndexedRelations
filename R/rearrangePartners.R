@@ -29,7 +29,7 @@
 rearrangePartners <- function(x, perm) {
     perm <- as.integer(perm)
     N <- ncol(partners(x))
-    if (!all(perm > 0L & perm <= N)) {
+    if (!all(!is.na(perm) & perm > 0L & perm <= N)) {
         stop("'perm' contains out-of-bounds values")
     }
     initialize(x, partners=partners(x)[,perm,drop=FALSE], mapping=mapping(x)[perm])
