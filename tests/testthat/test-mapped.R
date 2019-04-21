@@ -18,11 +18,14 @@ test_that("Getters work as expected on a singleton", {
 
     expect_identical(length(featureSets(IR)), 1L)
     expect_identical(featureSets(IR)[[1]], regions)
+    for (i in seq_len(3)) {
+        expect_identical(featureSetByPartner(IR, i), regions)
+    }
 
     expect_identical(mapping(IR), rep(1L, 3))
 })
 
-test_that("Setters work as expected on a singleton", {
+test_that("Partner setters work as expected on a singleton", {
     IR <- IndexedRelations(list(i1, i2, i3), featureSets=list(regions), mapping=c(1L,1L,1L))
 
     # Replacing IDs.
@@ -39,12 +42,22 @@ test_that("Setters work as expected on a singleton", {
     expect_identical(partnerFeatures(IR, 3), regions[i3])
 
     expect_identical(featureSets(IR)[[1]], unique(c(regions, new.regions)))
+})
 
-    # Replacing features.
+test_that("feature setters work as expected on a singleton", {
     IR <- IndexedRelations(list(i1, i2, i3), featureSets=list(regions), mapping=c(1L,1L,1L))
+    new.regions <- random_ranges(100)
+
     featureSets(IR)[[1]] <- new.regions
     expect_identical(partnerFeatures(IR, 1), new.regions[i1])
     expect_identical(partnerFeatures(IR, 2), new.regions[i2])
+    expect_identical(partnerFeatures(IR, 3), new.regions[i3])
+
+    # Trying to do this by partner.
+    featureSetByPartner(IR, 2) <- regions 
+    expect_identical(partnerFeatures(IR, 1), new.regions[i1])
+    expect_identical(partnerFeatures(IR, 2), regions[i2])
+    expect_identical(featureSets(IR)[[1]], unique(c(new.regions, regions)))
     expect_identical(partnerFeatures(IR, 3), new.regions[i3])
 })
 

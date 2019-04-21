@@ -183,6 +183,21 @@ test_that("feature getter/setter works correctly", {
     expect_identical(mcols(partnerFeatures(ir, 2))$blah, X[i2])
 })
 
+test_that("feature by partner getter/setter works correctly", {
+    ir <- IndexedRelations(list(i1, i2, i3), list(A=r1, B=r2, C=r3))
+    expect_identical(featureSetByPartner(ir, 1), r1)
+    expect_identical(featureSetByPartner(ir, 2), r2)
+    expect_identical(featureSetByPartner(ir, 3), r3)
+
+    new.r1 <- random_ranges(length(r1))
+    featureSetByPartner(ir, 1) <- new.r1
+    expect_identical(partnerFeatures(ir, 1), new.r1[i1])
+    expect_identical(featureSets(ir)[[1]], unique(c(r1, new.r1)))
+
+    expect_identical(partnerFeatures(ir, 2), r2[i2])
+    expect_identical(partnerFeatures(ir, 3), r3[i3])
+})
+
 ############################
 # Subsetting and combining #
 ############################
@@ -217,7 +232,7 @@ test_that("combining works correctly", {
 
     # Crashes with incompatible features.
     expect_error(c(ir, IndexedRelations(original[1:2], list(A=r1, B=r2))), "feature sets")
-    expect_error(c(ir, IndexedRelations(original[1:2], list(A=r1, B=r2, C=r3))), "same number of columns")
+    expect_error(c(ir, IndexedRelations(original[1:2], list(A=r1, B=r2, C=r3))), "feature sets")
 })
 
 test_that("subset assignment works correctly", {
@@ -246,5 +261,5 @@ test_that("subset assignment works correctly", {
 
     # Crashes with incompatible features.
     expect_error(ir[1:100] <- IndexedRelations(original[1:2], list(A=r1, B=r2)), "feature sets")
-    expect_error(ir[1:100] <- IndexedRelations(original[1:2], list(A=r1, B=r2, C=r3)), "same number of columns")
+    expect_error(ir[1:100] <- IndexedRelations(original[1:2], list(A=r1, B=r2, C=r3)), "feature sets")
 })
