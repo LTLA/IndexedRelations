@@ -28,6 +28,10 @@
 \alias{featureSets<-,IndexedRelations-method}
 \alias{nfeatureSets}
 \alias{nfeatureSets,IndexedRelations-method}
+\alias{featureSetByPartner}
+\alias{featureSetByPartner,IndexedRelations-method}
+\alias{featureSetByPartner<-}
+\alias{featureSetByPartner<-,IndexedRelations-method}
 \alias{mapping}
 \alias{mapping,IndexedRelations-method}
 \alias{parallelSlotNames,IndexedRelations-method}

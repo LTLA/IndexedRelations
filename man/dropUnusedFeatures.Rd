@@ -2,9 +2,12 @@
 % Please edit documentation in R/dropUnusedFeatures.R
 \name{dropUnusedFeatures}
 \alias{dropUnusedFeatures}
+\alias{dropUnusedFeatureSets}
 \title{Drop unused features}
 \usage{
 dropUnusedFeatures(x)
+
+dropUnusedFeatureSets(x)
 }
 \arguments{
 \item{x}{An IndexedRelations object.}

@@ -66,6 +66,7 @@ dropUnusedFeatures <- function(x) {
 }
 
 #' @export
+#' @rdname dropUnusedFeatures
 dropUnusedFeatureSets <- function(x) {
     map <- mapping(x)
     keep <- unique(map)

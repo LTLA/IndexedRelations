@@ -200,6 +200,8 @@
 #' featureSetNames featureSetNames,IndexedRelations-method featureSetNames<- featureSetNames<-,IndexedRelations-method
 #' featureSets featureSets,IndexedRelations-method featureSets<- featureSets<-,IndexedRelations-method
 #' nfeatureSets nfeatureSets,IndexedRelations-method
+#' featureSetByPartner featureSetByPartner,IndexedRelations-method 
+#' featureSetByPartner<- featureSetByPartner<-,IndexedRelations-method
 #' mapping mapping,IndexedRelations-method
 #' parallelSlotNames,IndexedRelations-method
 #' show,IndexedRelations-method
