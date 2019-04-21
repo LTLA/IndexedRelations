@@ -68,7 +68,7 @@ If \code{mapping} is specified, \code{featureSets} must be non-\code{NULL}.
 If \code{x} is a IndexedRelations object, it is returned without further modification.
 }
 
-\section{Getter methods}{
+\section{Getter methods for partners}{
 
 In the following code snippets, \code{x} is a IndexedRelations object.
 \describe{
@@ -79,20 +79,35 @@ The \code{i}th column contains an integer index that points to a feature set def
 \item{\code{partnerNames(x)}:}{Returns a character vector of names used for each parter in a relationship.
 This may be \code{NULL} if the partners are not named.}
 \item{\code{partnerFeatures(x, type)}:}{Returns the partners as features, by using the indices to subset the feature set.
-\code{type} can be an integer scalar or a string if the partners are named.}
+\code{type} is an integer scalar specifying which partners to return.
+Alternatively, it can be a string if the partners are named.}
 \item{\code{npartners(x)}:}{Returns an integer scalar specifying the number of partners per relationship in \code{x}.}
+}
+}
+
+\section{Getter methods for feature sets}{
+
+In the following code snippets, \code{x} is a IndexedRelations object.
+\describe{
 \item{\code{featureSets(x)}:}{Returns a \linkS4class{List} of feature sets.
 Each entry corresponds to a separate feature set.}
 \item{\code{featureSetNames(x)}:}{Returns a character vector of names used for each feature set.
 This may be \code{NULL} if the feature sets are not named.}
+\item{\code{featureSetByPartner(x, type)}:}{Returns the feature set for partner \code{type}.
+\code{type} can be an integer scalar or a string.}
 \item{\code{nfeatureSets(x)}:}{Returns an integer scalar specifying the number of feature sets in \code{x}.}
-\item{\code{mapping(x)}:}{Returns an integer vector specifying the mapping from partners to feature sets.
-The indices of the \code{i}th partner point towards \code{featureSets(x)[[mapping(x)[i]]]}.}
 }
+}
+
+\section{Other getters}{
+
+\code{mapping(x)} returns an integer vector specifying the mapping from partners to feature sets.
+The indices of the \code{i}th partner point towards \code{featureSets(x)[[mapping(x)[i]]]}.
+
 Getter methods applicable to \linkS4class{Vector} subclasses are also applicable here, e.g., \code{length}, \code{names}, \code{mcols}.
 }
 
-\section{Setter methods}{
+\section{Setter methods for partners}{
 
 In the following code snippets, \code{x} is a IndexedRelations object.
 \describe{
@@ -100,15 +115,41 @@ In the following code snippets, \code{x} is a IndexedRelations object.
 \code{value} should have the same number of columns as \code{partners(x)},
 and should contain integer indices that point to valid entries of the corresponding feature set.}
 \item{\code{partnerNames(x) <- value}:}{Replaces the names used for each partner with \code{value}, a character vector or \code{NULL}.}
-\item{\code{partnerFeatures(x, type) <- value}:}{Replaces the partners specified by \code{type} with new features in \code{value}.
-Replacement is performed while appending new features to the corresponding feature set in \code{featureSets(x)}.
-\code{type} can be an integer scalar or a string if the partners are named.}
-\item{\code{featureSets(x) <- value}:}{Replaces the feature sets with \code{value}.
-\code{value} should have the same number of feature sets as \code{featureSets(x)},
-and each set in \code{value} should be at least as long as the set that it replaces.} 
-\item{\code{featureSetNames(x)}:}{Replaces the names used for each feature set with \code{value}, a character vector or \code{NULL}.}
+\item{\code{partnerFeatures(x, type, ...) <- value}:}{Replaces the partners specified by \code{type} with new features in \code{value}.
+\code{value} must be of the same class as the existing features for these partners.
+\code{type} can be an integer scalar or a string if the partners are named.
+Values in \code{...} are ignored.
+
+It is worth pointing out that, technically, the relevant features are not actually replaced in the associated feature set.
+Rather, \code{value} is simply appended onto the feature set and the indices in \code{partners(x)} are updated.
+This is necessary to ensure that other indices in \code{x} pointing to the original features are not invalidated upon replacement.}
 }
+}
+
+\section{Setter methods for feature sets}{
+
+In the following code snippets, \code{x} is a IndexedRelations object.
+\describe{
+\item{\code{featureSets(x) <- value}:}{Replaces the feature sets with the \linkS4class{List} \code{value}.
+\code{value} should have the same length as the original \code{featureSets(x)},
+and each element in \code{value} should be at least as long as the corresponding element in the original.} 
+\item{\code{featureSetNames(x) <- value}:}{Replaces the names used for each feature set with \code{value}, a character vector or \code{NULL}.}
+\item{\code{featureSetByPartner(x, type, ...) <- value}:}{Replaces the feature set for the partner specified by \code{type} with a new feature set in \code{value}.
+\code{value} should be of the same type as the original feature set. 
+\code{type} can be an integer scalar or a string if the partners are named.
+Values in \code{...} are ignored.
+
+Again, as in \code{partnerFeatures<-}, the features are not technically replaced in this function.
+Rather, \code{value} is simply appended onto the feature set and the indices in \code{partners(x)} are updated.}
+}
+}
+
+\section{Other setter methods}{
+
 Setter methods applicable to \linkS4class{Vector} subclasses are also applicable here, e.g., \code{names<-}, \code{mcols<-}.
+
+Note that it is not currently possible to modify the \code{mapping}.
+This is rarely desirable, and construction of a new \linkS4class{IndexedRelations} entirely may be preferable.
 }
 
 \section{Subsetting and combining}{
@@ -116,7 +157,8 @@ Setter methods applicable to \linkS4class{Vector} subclasses are also applicable
 An IndexedRelations instance behaves like a one-dimensional \linkS4class{Vector} during subsetting.
 This will operate on the relations as vector elements.
 
-It is possible to combine IndexedRelations with the same feature set classes but different values or orderings.
+It is always possible to combine IndexedRelations objects with the same feature set classes,
+even if the entries in the feature sets differ between objects.
 In such cases, an IndexedRelations object will be produced where each feature set is a union of the corresponding sets in the input.
 The same principle applies for subset assignment.
 }
