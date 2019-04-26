@@ -323,10 +323,26 @@ setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
 })
 
 #' @importFrom BiocGenerics match
+#' @importFrom S4Vectors mcols
 .combine_features <- function(incoming, ref) {
     if (identical(incoming, ref)) {
         m <- seq_along(incoming)
     } else {
+        # Complaining if names might be compromised, if 'incoming'
+        # contains names (discarded if they aren't added to 'ref')
+        # or if 'ref' contains names (expands NULL names in 'incoming'
+        # to empty characters, which isn't quite right).
+        if (!is.null(names(incoming)) || !is.null(names(ref))) {
+            warning("potential modification of names in reorganized feature sets")
+        }
+
+        # Same logic for the metadata fields.
+        mi <- mcols(incoming)
+        mr <- mcols(ref)
+        if ((!is.null(mi) && ncol(mi) > 0L) || (!is.null(mr) && ncol(mr) > 0L)) {
+            warning("potential modification of metadata in reorganized feature sets")
+        }
+
         m <- match(incoming, ref)
         lost <- is.na(m)
         if (any(lost)) {

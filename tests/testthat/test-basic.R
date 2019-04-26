@@ -235,6 +235,30 @@ test_that("combining works correctly", {
     expect_error(c(ir, IndexedRelations(original[1:2], list(A=r1, B=r2, C=r3))), "feature sets")
 })
 
+test_that("combining works correctly with names and metadata", {
+    original <- list(i1, i2, i3)
+    ir <- IndexedRelations(original, list(A=r1, B=r2, C=r3))
+
+    # Checking warnings upon naming.
+    ir2a <- ir
+    ir2b <- c(ir, ir[100:80])
+    names(featureSets(ir2a)[[1]]) <- paste("REGION_", seq_along(r1))
+    expect_warning(out <- c(ir2a, ir2b), "potential modification of names")
+
+    expect_identical(names(featureSets(out)[[1]]), names(featureSets(ir2a)[[1]]))
+    names(featureSets(out)[[1]]) <- NULL
+    expect_identical(out, c(ir, ir2b))
+
+    # Equivalent warnings for metadata.
+    ir2a <- ir
+    mcols(featureSets(ir2a)[[1]])$X <- runif(length(r1))
+    expect_warning(out <- c(ir2a, ir2b), "potential modification of metadata")
+
+    expect_identical(mcols(featureSets(out)[[1]])$X, mcols(featureSets(ir2a)[[1]])$X)
+    mcols(featureSets(out)[[1]]) <- NULL
+    expect_identical(out, c(ir, ir2b))
+})
+
 test_that("subset assignment works correctly", {
     # Same features.
     original <- list(i1, i2, i3)
