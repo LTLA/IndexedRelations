@@ -38,6 +38,8 @@
 \alias{show,IndexedRelations-method}
 \alias{names,IndexedRelations-method}
 \alias{names<-,IndexedRelations-method}
+\alias{$,IndexedRelations-method}
+\alias{$<-,IndexedRelations-method}
 \alias{bindROWS,IndexedRelations-method}
 \title{The IndexedRelations class}
 \description{
@@ -110,6 +112,9 @@ The indices of the \code{i}th partner point towards \code{featureSets(x)[[mappin
 
 Getter methods applicable to \linkS4class{Vector} subclasses are also applicable here, 
 e.g., \code{length}, \code{names}, \code{\link{mcols}}, \code{\link{metadata}}.
+
+Element-wise metadata can be conveniently retrieved for an IndexedRelations object \code{x} with the field \code{name}
+by using \code{x$name}.
 }
 
 \section{Setter methods for partners}{
@@ -151,8 +156,11 @@ Rather, \code{value} is simply appended onto the feature set and the indices in 
 
 \section{Other setter methods}{
 
-Setter methods applicable to \linkS4class{Vector} subclasses are also applicable here, 
+Setter methods applicable to \linkS4class{Vector} subclasses are applicable to IndexedRelations instances,
 e.g., \code{names<-}, \code{\link{mcols<-}}, \code{\link{metadata<-}}.
+
+Element-wise metadata can be conveniently set for an IndexedRelations object \code{x} with the field \code{name}
+by using \code{x$name <- value}, where \code{value} is a vector-like object recycled to the length of \code{x}.
 
 Note that it is not currently possible to modify the \code{mapping}.
 This is rarely desirable, and construction of an entirely new \linkS4class{IndexedRelations} instance may be preferable.

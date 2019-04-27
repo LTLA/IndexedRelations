@@ -64,6 +64,9 @@
 #' 
 #' Getter methods applicable to \linkS4class{Vector} subclasses are also applicable here, 
 #' e.g., \code{length}, \code{names}, \code{\link{mcols}}, \code{\link{metadata}}.
+#' 
+#' Element-wise metadata can be conveniently retrieved for an IndexedRelations object \code{x} with the field \code{name}
+#' by using \code{x$name}.
 #'
 #' @section Setter methods for partners:
 #' In the following code snippets, \code{x} is a IndexedRelations object.
@@ -99,8 +102,11 @@
 #' }
 #'
 #' @section Other setter methods:
-#' Setter methods applicable to \linkS4class{Vector} subclasses are also applicable here, 
+#' Setter methods applicable to \linkS4class{Vector} subclasses are applicable to IndexedRelations instances,
 #' e.g., \code{names<-}, \code{\link{mcols<-}}, \code{\link{metadata<-}}.
+#'
+#' Element-wise metadata can be conveniently set for an IndexedRelations object \code{x} with the field \code{name}
+#' by using \code{x$name <- value}, where \code{value} is a vector-like object recycled to the length of \code{x}.
 #'
 #' Note that it is not currently possible to modify the \code{mapping}.
 #' This is rarely desirable, and construction of an entirely new \linkS4class{IndexedRelations} instance may be preferable.
@@ -217,6 +223,7 @@
 #' parallelSlotNames,IndexedRelations-method
 #' show,IndexedRelations-method
 #' names,IndexedRelations-method names<-,IndexedRelations-method
+#' $,IndexedRelations-method $<-,IndexedRelations-method
 #' bindROWS,IndexedRelations-method
 NULL
 
@@ -414,6 +421,21 @@ setReplaceMethod("featureSetByPartner", "IndexedRelations", function(x, type, ..
     combined <- .combine_features(value, cur.store)
     featureSets(x)[[ftype]] <- combined$ref
     partners(x)[[type]] <- combined$id[partners(x)[[type]]]
+    x
+})
+
+##########################
+# Getters and setters: $ #
+##########################
+
+#' @export
+#' @importFrom S4Vectors mcols
+setMethod("$", "IndexedRelations", function(x, name) mcols(x)[[name]])
+
+#' @export
+#' @importFrom S4Vectors mcols<-
+setReplaceMethod("$", "IndexedRelations", function(x, name, value) {
+    mcols(x)[[name]] <- value
     x
 })
 

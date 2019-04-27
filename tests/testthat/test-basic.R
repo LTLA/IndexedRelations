@@ -198,6 +198,18 @@ test_that("feature by partner getter/setter works correctly", {
     expect_identical(partnerFeatures(ir, 3), r3[i3])
 })
 
+test_that("metadata getting and setting works correctly", {
+    ir <- IndexedRelations(list(i1, i2, i3), list(A=r1, B=r2, C=r3))
+    X <- runif(length(i1))
+    mcols(ir)$stuff <- X
+
+    expect_identical(ir$stuff, X)
+    ir$stuff <- X+1
+    expect_identical(ir$stuff, X+1)
+    ir$stuff <- NULL
+    expect_identical(ir$stuff, NULL)
+})
+
 ############################
 # Subsetting and combining #
 ############################
