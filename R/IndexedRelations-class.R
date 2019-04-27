@@ -62,7 +62,8 @@
 #' \code{mapping(x)} returns an integer vector specifying the mapping from partners to feature sets.
 #' The indices of the \code{i}th partner point towards \code{featureSets(x)[[mapping(x)[i]]]}.
 #' 
-#' Getter methods applicable to \linkS4class{Vector} subclasses are also applicable here, e.g., \code{length}, \code{names}, \code{mcols}.
+#' Getter methods applicable to \linkS4class{Vector} subclasses are also applicable here, 
+#' e.g., \code{length}, \code{names}, \code{\link{mcols}}, \code{\link{metadata}}.
 #'
 #' @section Setter methods for partners:
 #' In the following code snippets, \code{x} is a IndexedRelations object.
@@ -78,7 +79,7 @@
 #' 
 #' It is worth pointing out that, technically, the relevant features are not actually replaced in the associated feature set.
 #' Rather, \code{value} is simply appended onto the feature set and the indices in \code{partners(x)} are updated.
-#' This is necessary to ensure that other indices in \code{x} pointing to the original features are not invalidated upon replacement.}
+#' This is necessary to ensure that other indices in \code{x} are not invalidated upon replacement.}
 #' }
 #'
 #' @section Setter methods for feature sets:
@@ -98,10 +99,11 @@
 #' }
 #'
 #' @section Other setter methods:
-#' Setter methods applicable to \linkS4class{Vector} subclasses are also applicable here, e.g., \code{names<-}, \code{mcols<-}.
+#' Setter methods applicable to \linkS4class{Vector} subclasses are also applicable here, 
+#' e.g., \code{names<-}, \code{\link{mcols<-}}, \code{\link{metadata<-}}.
 #'
 #' Note that it is not currently possible to modify the \code{mapping}.
-#' This is rarely desirable, and construction of a new \linkS4class{IndexedRelations} entirely may be preferable.
+#' This is rarely desirable, and construction of an entirely new \linkS4class{IndexedRelations} instance may be preferable.
 #'
 #' @section Subsetting and combining:
 #' An IndexedRelations instance behaves like a one-dimensional \linkS4class{Vector} during subsetting.
@@ -116,6 +118,15 @@
 #' \code{show(x)} will show information about an IndexedRelations \code{x}, including a preview of the first and last relationships.
 #' Note that the feature classes must have methods implemented for \code{\link{showAsCell}} in order for correct display of the partner features.
 #' 
+#' @section Names and metadata in feature sets:
+#' Particular functions may not preserve names and metadata in the feature set.
+#' This occurs when an operation needs to consolidate two different feature sets into one,
+#' e.g., when combining two IndexedRelations that do not have identical feature sets,
+#' or when using \code{partnerFeatures<-} or \code{featureSetByPartner<-}.
+#'
+#' In such cases, a warning will be issued if information is likely to be lost,
+#' such that the results are not as expected.
+#' Users wanting to modify names or metadata of the feature sets should do so via the \code{featureSets<-} method.
 #'
 #' @author Aaron Lun
 #' @examples
