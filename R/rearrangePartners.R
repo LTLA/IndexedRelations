@@ -35,5 +35,5 @@ rearrangePartners <- function(x, perm) {
 
     new.partners <- partners(x)[,perm,drop=FALSE]
     colnames(new.partners) <- colnames(partners(x))[perm] # avoid name mangling with duplicates.
-    initialize(x, partners=new.partners, featureSets=featureSets(x)[perm])
+    initialize(x, partners=new.partners, featureSets=.featureSets(x)[perm])
 }

@@ -60,9 +60,9 @@ standardizeFeatureSets <- function(x, objects, clean=FALSE)
     }
 
     # Reindexing the features to the same set.
-    ref.features <- featureSets(x)
+    ref.features <- .featureSets(x)
     for (i in seq_along(objects)) {
-        cur.features <- featureSets(objects[[i]])
+        cur.features <- .featureSets(objects[[i]])
         if (identical(cur.features, ref.features)) {
             next
         }
@@ -159,7 +159,7 @@ standardizeFeatureSets <- function(x, objects, clean=FALSE)
 #'
 #' @export
 cleanFeatureSets <- function(x) {
-    fsets <- featureSets(x)
+    fsets <- .featureSets(x)
     remap <- vector("list", length(fsets))
 
     for (i in seq_along(fsets)) {

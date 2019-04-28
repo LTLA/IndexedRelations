@@ -43,7 +43,7 @@
 #' @section Other getters:
 #' \code{featureSets(x)} returns a \linkS4class{List} of all feature sets,
 #' given an IndexedRelations object \code{x}.
-#' Each feature set corresponds to and is pointed at by a column of \code{partners(x)}.
+#' Each feature set corresponds to and is pointed at by the column of \code{partners(x)} with the same name.
 #'
 #' Getter methods applicable to \linkS4class{Vector} subclasses can be used here, 
 #' e.g., \code{length}, \code{names}, \code{\link{mcols}}, \code{\link{metadata}}.
@@ -217,7 +217,7 @@ IndexedRelations <- function(x, featureSets=NULL) {
 setValidity2("IndexedRelations", function(object) {
     msg <- character(0)
     rlt <- partners(object)
-    itr <- featureSets(object)
+    itr <- .featureSets(object)
 
     failed <- length(itr)!=ncol(rlt)
     if (failed) {
@@ -264,7 +264,7 @@ setMethod("partnerFeatures", "IndexedRelations", function(x, type) {
         type <- match(type, partnerNames(x))
     }
     ids <- partners(x)[[type]]
-    cur.store <- featureSets(x)[[type]]
+    cur.store <- .featureSets(x)[[type]]
     cur.store[ids]
 })
 
@@ -277,6 +277,7 @@ setReplaceMethod("partners", "IndexedRelations", function(x, value) {
 #' @export
 setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
     names(partners(x)) <- value
+    names(featureSets(x)) <- value
     x
 })
 
@@ -328,8 +329,15 @@ setReplaceMethod("partnerFeatures", "IndexedRelations", function(x, type, ..., v
 # Getters and setters: featureSets #
 ####################################
 
+# An unnamed version with no overhead.
+.featureSets <- function(x) x@featureSets
+
 #' @export
-setMethod("featureSets", "IndexedRelations", function(x) x@featureSets)
+setMethod("featureSets", "IndexedRelations", function(x) {
+    out <- .featureSets(x)
+    names(out) <- partnerNames(x)
+    out
+})
 
 #' @export
 setReplaceMethod("featureSets", "IndexedRelations", function(x, value) {

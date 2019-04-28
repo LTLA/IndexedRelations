@@ -31,7 +31,7 @@
 #' 
 #' @export
 dropUnusedFeatures <- function(x) {
-    all.features <- featureSets(x)
+    all.features <- .featureSets(x)
     all.partners <- partners(x)
 
     # Remapping the indices in the partners.

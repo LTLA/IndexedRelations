@@ -78,7 +78,7 @@ Alternatively, it can be a string if the partners are named.}
 
 \code{featureSets(x)} returns a \linkS4class{List} of all feature sets,
 given an IndexedRelations object \code{x}.
-Each feature set corresponds to and is pointed at by a column of \code{partners(x)}.
+Each feature set corresponds to and is pointed at by the column of \code{partners(x)} with the same name.
 
 Getter methods applicable to \linkS4class{Vector} subclasses can be used here, 
 e.g., \code{length}, \code{names}, \code{\link{mcols}}, \code{\link{metadata}}.
