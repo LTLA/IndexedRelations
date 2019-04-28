@@ -33,7 +33,7 @@ showIndexedRelations <- function(x, margin = "", print.classinfo = FALSE) {
     out <- S4Vectors:::makePrettyMatrixForCompactPrinting(x, .makeNakedMatFromIndexedRelations)
 
     if (print.classinfo) {
-        .COL2CLASS <- lapply(mapping(x), function(y) class(featureSets(x)[[y]]))
+        .COL2CLASS <- lapply(featureSets(x), class)
         names(.COL2CLASS) <- partnerNames(x)
         classinfo <- S4Vectors:::makeClassinfoRowForCompactPrinting(x, .COL2CLASS)
         stopifnot(identical(colnames(classinfo), colnames(out)))

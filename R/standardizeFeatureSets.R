@@ -3,7 +3,7 @@
 #' Standardize feature sets across comparable \linkS4class{IndexedRelations} objects.
 #'
 #' @param x An IndexedRelations object.
-#' @param objects A list of IndexedRelations object with the same number of partners, number/classes of featureSets and mapping as \code{x}.
+#' @param objects A list of IndexedRelations object with the same number and classes of partners.
 #' @param clean Logical scalar indicating whether the each of the feature sets should contain sorted and unique entries.
 #' 
 #' @details
@@ -55,25 +55,8 @@ standardizeFeatureSets <- function(x, objects, clean=FALSE)
     FUN <- function(z) unname(lapply(featureSets(z), class))
     ref.fcls <- FUN(x)
     obj.fcls <- lapply(objects, FUN)
-    ref.map <- mapping(x)
-    obj.map <- lapply(objects, mapping)
-
-    if (!.check_equality(ref.fcls, obj.fcls) || !.check_equality(ref.map, obj.map)) {
-        ref.fcls <- ref.fcls[ref.map]
-        obj.fcls <- mapply("[", obj.fcls, obj.map, SIMPLIFY=FALSE)
-        if (!.check_equality(ref.fcls, obj.fcls)) {
-            stop("feature sets are not comparable across objects")
-        }
-
-        # Forcibly expanding everyone to a straightforward mapping,
-        # if the feature set classes are not directly equal but 
-        # become so after expanding by 'mapping'.
-        expander <- function(x) { 
-            fsets <- featureSets(x)
-            initialize(x, featureSets=fsets[mapping(x)], mapping=seq_along(mapping(x)))
-        }
-        x <- expander(x)
-        objects <- lapply(objects, expander) 
+    if (!all(vapply(obj.fcls, identical, y=ref.fcls, FUN.VALUE=TRUE))) {
+        stop("feature sets are not comparable across objects")
     }
 
     # Reindexing the features to the same set.
@@ -119,15 +102,12 @@ standardizeFeatureSets <- function(x, objects, clean=FALSE)
 }
 
 .check_equality <- function(ref, others) {
-    all(vapply(others, identical, y=ref, FUN.VALUE=TRUE))
 }
 
 .reindex_partners <- function(x, remap) {
-    cur.map <- mapping(x)
     cur.partners <- partners(x)
     for (k in seq_len(ncol(cur.partners))) {
-        ftype <- cur.map[k]
-        cur.partners[,k] <- remap[[ftype]][cur.partners[,k]]
+        cur.partners[,k] <- remap[[k]][cur.partners[,k]]
     }
     partners(x) <- cur.partners
     x

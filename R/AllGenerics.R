@@ -23,22 +23,4 @@ setGeneric("partnerFeatures<-", function(x, ..., value) standardGeneric("partner
 setGeneric("featureSets", function(x) standardGeneric("featureSets"))
 
 #' @export
-setGeneric("featureSetNames", function(x) standardGeneric("featureSetNames"))
-
-#' @export
-setGeneric("nfeatureSets", function(x) standardGeneric("nfeatureSets"))
-
-#' @export
-setGeneric("featureSetByPartner", function(x, ...) standardGeneric("featureSetByPartner"))
-
-#' @export
 setGeneric("featureSets<-", function(x, value) standardGeneric("featureSets<-"))
-
-#' @export
-setGeneric("featureSetNames<-", function(x, value) standardGeneric("featureSetNames<-"))
-
-#' @export
-setGeneric("featureSetByPartner<-", function(x, ..., value) standardGeneric("featureSetByPartner<-"))
-
-#' @export
-setGeneric("mapping", function(x) standardGeneric("mapping"))
