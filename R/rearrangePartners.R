@@ -32,5 +32,8 @@ rearrangePartners <- function(x, perm) {
     if (!all(!is.na(perm) & perm > 0L & perm <= N)) {
         stop("'perm' contains out-of-bounds values")
     }
-    initialize(x, partners=partners(x)[,perm,drop=FALSE])
+
+    new.partners <- partners(x)[,perm,drop=FALSE]
+    colnames(new.partners) <- colnames(partners(x))[perm] # avoid name mangling with duplicates.
+    initialize(x, partners=new.partners, featureSets=featureSets(x)[perm])
 }

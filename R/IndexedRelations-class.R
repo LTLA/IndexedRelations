@@ -91,6 +91,13 @@
 #' \code{show(x)} will show information about an IndexedRelations \code{x}, including a preview of the first and last relationships.
 #' Note that the feature classes must have methods implemented for \code{\link{showAsCell}} in order for correct display of the partner features.
 #' 
+#' @section Names and metadata in feature sets:
+#' Particular functions may not preserve names and metadata in the feature set.
+#' This occurs when an operation needs to consolidate two different feature sets into one,
+#' e.g., when combining two IndexedRelations that do not have identical feature sets,
+#' In such cases, a warning will be issued if information is likely to be lost such that the results are not as expected.
+#' Users wanting to modify names or metadata of the feature sets should do so via the \code{featureSets<-} method.
+#'
 #' @author Aaron Lun
 #' @examples
 #' #####################
@@ -193,6 +200,10 @@ IndexedRelations <- function(x, featureSets=NULL) {
 
     x <- lapply(x, as.integer)
     x <- lapply(x, unname)
+    if (is.null(names(x))) {
+        names(x) <- sprintf("X.%i", seq_along(x))
+    }
+    x$check.names <- FALSE
     df <- do.call(DataFrame, x)
 
     new("IndexedRelations", partners=df, featureSets=as(featureSets, "List"))
@@ -242,7 +253,7 @@ setValidity2("IndexedRelations", function(object) {
 setMethod("partners", "IndexedRelations", function(x) x@partners)
 
 #' @export
-setMethod("partnerNames", "IndexedRelations", function(x) names(featureSets(x)))
+setMethod("partnerNames", "IndexedRelations", function(x) names(partners(x)))
 
 #' @export
 setMethod("npartners", "IndexedRelations", function(x) ncol(partners(x)))
@@ -265,7 +276,7 @@ setReplaceMethod("partners", "IndexedRelations", function(x, value) {
 
 #' @export
 setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
-    names(featureSets(x)) <- value
+    names(partners(x)) <- value
     x
 })
 

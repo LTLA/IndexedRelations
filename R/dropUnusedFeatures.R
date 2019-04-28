@@ -30,24 +30,15 @@
 #' lengths(featureSets(dropped))
 #' 
 #' @export
-#' @importFrom S4Vectors mendoapply
 dropUnusedFeatures <- function(x) {
     all.features <- featureSets(x)
-    f <- factor(mapping(x), levels=seq_along(all.features))
-
     all.partners <- partners(x)
-    by.set <- split(as.list(all.partners), f, drop=FALSE)
-
-    for (i in seq_along(by.set)) {
-        keep <- as.integer(unique(unlist(by.set[[i]])))
-        all.features[[i]] <- all.features[[i]][keep]
-        by.set[[i]] <- keep
-    }
 
     # Remapping the indices in the partners.
     for (i in seq_len(ncol(all.partners))) {
-        m <- mapping(x)[i]
-        all.partners[,i] <- match(all.partners[,i], by.set[[m]])
+        keep <- unique(all.partners[,i])
+        all.partners[,i] <- match(all.partners[,i], keep)
+        all.features[[i]] <- all.features[[i]][keep]
     }
 
     initialize(x, featureSets=all.features, partners=all.partners)
