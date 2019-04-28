@@ -137,6 +137,15 @@ The same principle applies for subset assignment.
 Note that the feature classes must have methods implemented for \code{\link{showAsCell}} in order for correct display of the partner features.
 }
 
+\section{Names and metadata in feature sets}{
+
+Particular functions may not preserve names and metadata in the feature set.
+This occurs when an operation needs to consolidate two different feature sets into one,
+e.g., when combining two IndexedRelations that do not have identical feature sets,
+In such cases, a warning will be issued if information is likely to be lost such that the results are not as expected.
+Users wanting to modify names or metadata of the feature sets should do so via the \code{featureSets<-} method.
+}
+
 \examples{
 #####################
 #### Constructor ####
