@@ -18,22 +18,10 @@
 \alias{partnerFeatures<-,IndexedRelations-method}
 \alias{npartners}
 \alias{npartners,IndexedRelations-method}
-\alias{featureSetNames}
-\alias{featureSetNames,IndexedRelations-method}
-\alias{featureSetNames<-}
-\alias{featureSetNames<-,IndexedRelations-method}
 \alias{featureSets}
 \alias{featureSets,IndexedRelations-method}
 \alias{featureSets<-}
 \alias{featureSets<-,IndexedRelations-method}
-\alias{nfeatureSets}
-\alias{nfeatureSets,IndexedRelations-method}
-\alias{featureSetByPartner}
-\alias{featureSetByPartner,IndexedRelations-method}
-\alias{featureSetByPartner<-}
-\alias{featureSetByPartner<-,IndexedRelations-method}
-\alias{mapping}
-\alias{mapping,IndexedRelations-method}
 \alias{parallelSlotNames,IndexedRelations-method}
 \alias{show,IndexedRelations-method}
 \alias{names,IndexedRelations-method}
@@ -53,23 +41,18 @@ This reduces the memory usage and enables more efficient processing by algorithm
 }
 \section{Constructor}{
 
-\code{IndexedRelations(x, featureSets=NULL, mapping=NULL)} will return a IndexedRelations object given a list or data.frame of partners in \code{x}.
+\code{IndexedRelations(x, featureSets=NULL)} will return a IndexedRelations object given a list or data.frame of partners in \code{x}.
 
 Partners can be represented by any \linkS4class{Vector}-like data type in each element of \code{x}.
 Parallel Vectors in \code{x} represent partners involved in a single relationship, i.e.,
 the first element of \code{x[[1]]} is in a relationship with the first element of \code{x[[2]]} and so on.
 Thus, all partner vectors in \code{x} should be of the same length.
 
-If \code{featureSets} is specified, this should contain a list of feature sets for each type of feature.
+If \code{featureSets} is specified, this should contain a list of feature sets.
 Again, any Vector-like data type is supported, but in this case, \code{x} should only contain integer indices.
 This specifies the partners involved in each relationship by indexing the relevant feature set.
-By default, each partner vector in \code{x} is assumed to point to the corresponding feature set in \code{featureSets},
+Each partner vector in \code{x} is assumed to point to the corresponding feature set in \code{featureSets},
 i.e., indices in \code{x[[1]]} refer to the elements in \code{featuresSets[[1]]} and so on.
-
-If set, \code{mapping} should be an integer vector of length equal to \code{x},
-specifying the index of the feature set in \code{featureSets} that is indexed by each partner vector in \code{x}.
-Multiple partner vectors can index the same feature set if the features are shared.
-If \code{mapping} is specified, \code{featureSets} must be non-\code{NULL}.
 
 If \code{x} is a IndexedRelations object, it is returned without further modification.
 }
@@ -80,7 +63,7 @@ In the following code snippets, \code{x} is a IndexedRelations object.
 \describe{
 \item{\code{partners(x)}:}{Returns a \linkS4class{DataFrame} of partner indices.
 Each row represents a relationship and each column represents a partner.
-The \code{i}th column contains an integer index that points to a feature set defined by \code{mapping(x)[i]}.
+The \code{i}th column contains an integer index that points to the corresponding feature set in \code{featureSets}.
 }
 \item{\code{partnerNames(x)}:}{Returns a character vector of names used for each parter in a relationship.
 This may be \code{NULL} if the partners are not named.}
@@ -91,26 +74,13 @@ Alternatively, it can be a string if the partners are named.}
 }
 }
 
-\section{Getter methods for feature sets}{
-
-In the following code snippets, \code{x} is a IndexedRelations object.
-\describe{
-\item{\code{featureSets(x)}:}{Returns a \linkS4class{List} of feature sets.
-Each entry corresponds to a separate feature set.}
-\item{\code{featureSetNames(x)}:}{Returns a character vector of names used for each feature set.
-This may be \code{NULL} if the feature sets are not named.}
-\item{\code{featureSetByPartner(x, type)}:}{Returns the feature set for partner \code{type}.
-\code{type} can be an integer scalar or a string.}
-\item{\code{nfeatureSets(x)}:}{Returns an integer scalar specifying the number of feature sets in \code{x}.}
-}
-}
-
 \section{Other getters}{
 
-\code{mapping(x)} returns an integer vector specifying the mapping from partners to feature sets.
-The indices of the \code{i}th partner point towards \code{featureSets(x)[[mapping(x)[i]]]}.
+\code{featureSets(x)} returns a \linkS4class{List} of all feature sets,
+given an IndexedRelations object \code{x}.
+Each feature set corresponds to and is pointed at by a column of \code{partners(x)}.
 
-Getter methods applicable to \linkS4class{Vector} subclasses are also applicable here, 
+Getter methods applicable to \linkS4class{Vector} subclasses can be used here, 
 e.g., \code{length}, \code{names}, \code{\link{mcols}}, \code{\link{metadata}}.
 
 Element-wise metadata can be conveniently retrieved for an IndexedRelations object \code{x} with the field \code{name}
@@ -126,13 +96,8 @@ In the following code snippets, \code{x} is a IndexedRelations object.
 and should contain integer indices that point to valid entries of the corresponding feature set.}
 \item{\code{partnerNames(x) <- value}:}{Replaces the names used for each partner with \code{value}, a character vector or \code{NULL}.}
 \item{\code{partnerFeatures(x, type, ...) <- value}:}{Replaces the partners specified by \code{type} with new features in \code{value}.
-\code{value} must be of the same class as the existing features for these partners.
 \code{type} can be an integer scalar or a string if the partners are named.
-Values in \code{...} are ignored.
-
-It is worth pointing out that, technically, the relevant features are not actually replaced in the associated feature set.
-Rather, \code{value} is simply appended onto the feature set and the indices in \code{partners(x)} are updated.
-This is necessary to ensure that other indices in \code{x} are not invalidated upon replacement.}
+Values in \code{...} are ignored.}
 }
 }
 
@@ -140,30 +105,19 @@ This is necessary to ensure that other indices in \code{x} are not invalidated u
 
 In the following code snippets, \code{x} is a IndexedRelations object.
 \describe{
-\item{\code{featureSets(x) <- value}:}{Replaces the feature sets with the \linkS4class{List} \code{value}.
-\code{value} should have the same length as the original \code{featureSets(x)},
-and each element in \code{value} should be at least as long as the corresponding element in the original.} 
-\item{\code{featureSetNames(x) <- value}:}{Replaces the names used for each feature set with \code{value}, a character vector or \code{NULL}.}
-\item{\code{featureSetByPartner(x, type, ...) <- value}:}{Replaces the feature set for the partner specified by \code{type} with a new feature set in \code{value}.
-\code{value} should be of the same type as the original feature set. 
-\code{type} can be an integer scalar or a string if the partners are named.
-Values in \code{...} are ignored.
-
-Again, as in \code{partnerFeatures<-}, the features are not technically replaced in this function.
-Rather, \code{value} is simply appended onto the feature set and the indices in \code{partners(x)} are updated.}
 }
 }
 
 \section{Other setter methods}{
+
+\code{featureSets(x) <- value} replaces the feature sets in an IndexedRelations instance \code{x} with the \linkS4class{List} \code{value}.
+\code{value} should have the same length as the original \code{featureSets(x)}.
 
 Setter methods applicable to \linkS4class{Vector} subclasses are applicable to IndexedRelations instances,
 e.g., \code{names<-}, \code{\link{mcols<-}}, \code{\link{metadata<-}}.
 
 Element-wise metadata can be conveniently set for an IndexedRelations object \code{x} with the field \code{name}
 by using \code{x$name <- value}, where \code{value} is a vector-like object recycled to the length of \code{x}.
-
-Note that it is not currently possible to modify the \code{mapping}.
-This is rarely desirable, and construction of an entirely new \linkS4class{IndexedRelations} instance may be preferable.
 }
 
 \section{Subsetting and combining}{
@@ -181,18 +135,6 @@ The same principle applies for subset assignment.
 
 \code{show(x)} will show information about an IndexedRelations \code{x}, including a preview of the first and last relationships.
 Note that the feature classes must have methods implemented for \code{\link{showAsCell}} in order for correct display of the partner features.
-}
-
-\section{Names and metadata in feature sets}{
-
-Particular functions may not preserve names and metadata in the feature set.
-This occurs when an operation needs to consolidate two different feature sets into one,
-e.g., when combining two IndexedRelations that do not have identical feature sets,
-or when using \code{partnerFeatures<-} or \code{featureSetByPartner<-}.
-
-In such cases, a warning will be issued if information is likely to be lost,
-such that the results are not as expected.
-Users wanting to modify names or metadata of the feature sets should do so via the \code{featureSets<-} method.
 }
 
 \examples{
@@ -233,9 +175,6 @@ partnerFeatures(rel, 1)
 partnerNames(rel)
 
 featureSets(rel)
-featureSetNames(rel)
-
-mapping(rel) # always seq_along(featureSets(rel)) for IndexedRelations.
 
 #################
 #### Setters ####
@@ -251,11 +190,8 @@ partnerNames(rel2)
 partnerFeatures(rel2, "P") <- rev(partnerFeatures(rel2, "P")) # by feature
 partners(rel2)
 
-featureSets(rel2)$promoters <- resize(featureSets(rel2)$promoters, width=25)
-featureSets(rel2)$promoters
-
-featureSetNames(rel2) <- c("Pset", "Eset")
-featureSetNames(rel2)
+featureSets(rel2)$P <- resize(featureSets(rel2)$P, width=25)
+featureSets(rel2)$P
 
 ##################################
 #### Subsetting and combining ####

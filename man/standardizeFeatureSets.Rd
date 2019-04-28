@@ -9,7 +9,7 @@ standardizeFeatureSets(x, objects, clean = FALSE)
 \arguments{
 \item{x}{An IndexedRelations object.}
 
-\item{objects}{A list of IndexedRelations object with the same number of partners, number/classes of featureSets and mapping as \code{x}.}
+\item{objects}{A list of IndexedRelations object with the same number and classes of partners.}
 
 \item{clean}{Logical scalar indicating whether the each of the feature sets should contain sorted and unique entries.}
 }
