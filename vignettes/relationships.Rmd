@@ -3,7 +3,7 @@ title: Representing 'omics relationships with _IndexedRelations_
 author:
 - name: Aaron Lun
   email: infinite.monkeys.with.keyboards@gmail.com
-date: "Revised: 10 April 2019"
+date: "Revised: 27 April 2019"
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -82,7 +82,9 @@ reducing memory use and improving the efficiency of algorithms that operate on t
 
 # Getters and setters
 
-Use the `partnerFeatures()` and `partners()` methods to extract the partners:
+The `partnerFeatures()` and `partners()` methods are used to extract the partners.
+The former will extract the partners as a full set of features, which is convenient but less efficient.
+The latter will only extract the indices, and it is up to the user to use them to index the relevant feature set.
 
 ```{r}
 # Extract partnering features:
@@ -93,7 +95,9 @@ partnerFeatures(rel, 2)
 partners(rel)
 ```
 
-Use the `featureSets()` method to extract the feature sets:
+The `featureSets()` method is used to extract the feature sets.
+The first feature set contains the features for the first partner,
+the second set for the second partner and so on.
 
 ```{r}
 featureSets(rel)[[1]]
@@ -105,21 +109,29 @@ It has `length`, `names` and can be subsetted and combined.
 
 ```{r}
 length(rel)
-length(rel[1:10,])
-length(c(rel, rel))
+rel[1:10,]
+c(rel, rel)
 ```
 
-You can also set the partners or features on an existing `IndexedRelations` object:
+You can also modify the partners or the feature sets on an existing `IndexedRelations` object.
+This is most obviously done by passing relevant features to the replacement methods:
 
 ```{r}
 # Set partner with features.
 partnerFeatures(rel, 2) <- ir[sample(length(ir), length(rel), replace=TRUE)]
-
-# Set partner with indices.
-partners(rel)[,2] <- sample(length(ir), length(rel), replace=TRUE)
+rel
 
 # Modify the first feature set.
 featureSets(rel)[[1]] <- resize(featureSets(rel)[[1]], 20)
+rel
+```
+
+Advanced users can also modify the indices directly -
+though, as anyone who has played with pointers can attest, it is important that the indices point to valid entries in the corresponding feature set!
+
+```{r}
+Npossibles <- length(featureSets(rel)[[2]])
+partners(rel)[,2] <- sample(Npossibles, length(rel), replace=TRUE)
 ```
 
 In most cases, an `IndexedRelations` object will behave "as if" it were an object containing the partnering features explicitly.
