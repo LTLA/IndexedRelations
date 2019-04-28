@@ -22,7 +22,7 @@ test_that("basic construction works correctly", {
     expected <- DataFrame(i1, i2, i3)
     colnames(expected) <- paste0("X.", 1:3)
     expect_identical(partners(IR), expected)
-    expect_identical(featureSets(IR), List(r1, r2, r3))
+    expect_identical(unname(featureSets(IR)), List(r1, r2, r3))
 
     # Preserves names.
     IRn <- IndexedRelations(list(X=i1, Y=i2, Z=i3), list(r1, r2, r3))
@@ -136,7 +136,7 @@ test_that("partner setter works correctly (same feature set)", {
     partners(ir)[,"B"] <- alt
     expect_identical(partnerFeatures(ir, "B"), r2[alt])
     expect_identical(partners(ir)[,"B"], alt)
-    expect_identical(featureSets(ir), featureSets(ir.0))
+    expect_identical(unname(featureSets(ir)), unname(featureSets(ir.0)))
 
     alt <- rev(r1[i1])
     partnerFeatures(ir, "A") <- alt
@@ -178,9 +178,18 @@ test_that("feature getter/setter works correctly", {
     featureSets(ir)[[1]] <- resize(featureSets(ir)[[1]], width=100)
     expect_identical(partnerFeatures(ir, 1), resize(r1[i1], width=100))
 
+    # Respects being set with metadata.
     X <- runif(length(r2))
-    mcols(featureSets(ir)[["B"]])$blah <- X
+    mcols(featureSets(ir)[[2]])$blah <- X
     expect_identical(mcols(partnerFeatures(ir, 2))$blah, X[i2])
+
+    # Respects names.
+    partnerNames(ir) <- c("X", "Y", "Z")
+    expect_identical(names(featureSets(ir)), c("X", "Y", "Z"))
+
+    stuff <- rnorm(length(r3))
+    mcols(featureSets(ir)$Z)$stuff <- stuff
+    expect_identical(mcols(featureSets(ir)$Z)$stuff, stuff)
 })
 
 test_that("metadata getting and setting works correctly", {
@@ -234,7 +243,7 @@ test_that("combining works correctly", {
 
 test_that("combining works correctly with names and metadata", {
     original <- list(i1, i2, i3)
-    ir <- IndexedRelations(original, list(A=r1, B=r2, C=r3))
+    ir <- IndexedRelations(original, list(r1, r2, r3))
 
     # Checking warnings upon naming.
     ir2a <- ir
@@ -244,6 +253,7 @@ test_that("combining works correctly with names and metadata", {
 
     expect_identical(names(featureSets(out)[[1]]), names(featureSets(ir2a)[[1]]))
     names(featureSets(out)[[1]]) <- NULL
+    names(featureSets(out)) <- NULL
     expect_identical(out, c(ir, ir2b))
 
     # Equivalent warnings for metadata.
@@ -253,6 +263,7 @@ test_that("combining works correctly with names and metadata", {
 
     expect_identical(mcols(featureSets(out)[[1]])$X, mcols(featureSets(ir2a)[[1]])$X)
     mcols(featureSets(out)[[1]]) <- NULL
+    names(featureSets(out)) <- NULL
     expect_identical(out, c(ir, ir2b))
 })
 

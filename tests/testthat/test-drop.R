@@ -30,5 +30,5 @@ test_that("dropUnusedFeatures works with empty objects", {
     IR2 <- dropUnusedFeatures(IR)
     expect_as_if(IR, IR2)
 
-    expect_identical(lengths(featureSets(IR2)), integer(3))
+    expect_identical(unname(lengths(featureSets(IR2))), integer(3))
 })
