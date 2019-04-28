@@ -27,8 +27,8 @@ test_that("conversion to and from a Pairs object works correctly", {
     ir2 <- as(p, "IndexedRelations")
     ref <- IndexedRelations(list(r1[i1], r2[i2]))
     names(ref) <- nr
-    partnerNames(ref) <- featureSetNames(ref) <- c("first", "second")
-    expect_identical(ir2, ref)
+    partnerNames(ref) <- c("first", "second")
+    expect_as_if(ir2, ref)
 })
 
 test_that("conversion to and from a DataFrame object works correctly", {
@@ -48,6 +48,5 @@ test_that("conversion to and from a DataFrame object works correctly", {
     ir2 <- as(df, "IndexedRelations")
     ref <- IndexedRelations(list(r1[i1], r2[i2]))
     names(ref) <- nr
-#    featureSetNames(ref) <- colnames(df)
 #    expect_identical(ir2, ref)
 })

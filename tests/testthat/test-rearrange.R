@@ -13,13 +13,13 @@ test_that("rearrangePartners works correctly", {
     IR <- IndexedRelations(list(A=i1, B=i2, C=i3), featureSets=list(r1, r2, r3))
 
     expect_identical(rearrangePartners(IR, c(3,2,1)),
-        IndexedRelations(list(C=i3, B=i2, A=i1), featureSets=list(r1, r2, r3), mapping=3:1))
+        IndexedRelations(list(C=i3, B=i2, A=i1), featureSets=list(r3, r2, r1)))
         
     expect_identical(rearrangePartners(IR, c(1,1,2)),
-        IndexedRelations(list(A=i1, A=i1, B=i2), featureSets=list(r1, r2, r3), mapping=c(1L,1L,2L)))
+        IndexedRelations(list(A=i1, A=i1, B=i2), featureSets=list(r1, r1, r2)))
 
     expect_identical(rearrangePartners(IR, 1),
-        IndexedRelations(list(A=i1), featureSets=list(r1, r2, r3), mapping=c(1L)))
+        IndexedRelations(list(A=i1), featureSets=list(r1)))
 
     expect_error(rearrangePartners(IR, 5), "out-of-bounds")
     expect_error(rearrangePartners(IR, 0), "out-of-bounds")

@@ -14,7 +14,7 @@ i3 <- sample(length(r3), N, replace=TRUE)
 ################################
 ################################
 
-test_that("standardizeFeatureSets works correctly with trivial mapping", {
+test_that("standardizeFeatureSets works correctly", {
     # Same feature set.
     ir1 <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
     ir2 <- IndexedRelations(list(i1, i2, i3), list(rev(r1), rev(r2), rev(r3)))
@@ -24,8 +24,6 @@ test_that("standardizeFeatureSets works correctly with trivial mapping", {
     expect_as_if(out$objects[[1]], ir2)
 
     expect_identical(featureSets(out$objects[[1]]), featureSets(ir1))
-    expect_identical(mapping(out$x), 1:3)
-    expect_identical(mapping(out$objects[[1]]), 1:3)
 
     # Completely different feature set.
     a1 <- random_ranges(10)
@@ -44,8 +42,6 @@ test_that("standardizeFeatureSets works correctly with trivial mapping", {
     expect_as_if(out$objects[[1]], ir3)
 
     expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
-    expect_identical(mapping(out$x), 1:3)
-    expect_identical(mapping(out$objects[[1]]), 1:3)
 
     # Behaves with multiple entries.
     b1 <- random_ranges(10)
@@ -66,115 +62,6 @@ test_that("standardizeFeatureSets works correctly with trivial mapping", {
 
     expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
     expect_identical(featureSets(out$x), featureSets(out$objects[[2]]))
-
-    expect_identical(mapping(out$x), 1:3)
-    expect_identical(mapping(out$objects[[1]]), 1:3)
-})
-
-test_that("standardizeFeatureSets works correctly with single mapping", {
-    # Same feature set.
-    R <- r3
-    ir1 <- IndexedRelations(list(i1, i2, i3), list(R), mapping=rep(1L, 3))
-    ir2 <- IndexedRelations(list(i1, i2, i3), list(rev(R)), mapping=rep(1L, 3))
-
-    out <- standardizeFeatureSets(ir1, list(ir2))
-    expect_identical(out$x, ir1)
-    expect_as_if(out$objects[[1]], ir2)
-
-    expect_identical(featureSets(out$objects[[1]]), featureSets(ir1))
-    expect_identical(featureSets(out$x)[[1]], R)
-
-    expect_identical(mapping(out$x), rep(1L, 3))
-    expect_identical(mapping(out$objects[[1]]), rep(1L, 3))
-
-    # Completely different feature set.
-    A <- random_ranges(30)
-    N2 <- 50
-    j1 <- sample(length(A), N2, replace=TRUE)
-    j2 <- sample(length(A), N2, replace=TRUE)
-    j3 <- sample(length(A), N2, replace=TRUE)
-
-    ir3 <- IndexedRelations(list(j1, j2, j3), list(A), mapping=rep(1L, 3))
-    out <- standardizeFeatureSets(ir1, list(ir3))
-
-    expect_as_if(out$x, ir1)
-    expect_as_if(out$objects[[1]], ir3)
-
-    expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
-    expect_identical(length(featureSets(out$x)), 1L)
-
-    expect_identical(mapping(out$x), rep(1L, 3))
-    expect_identical(mapping(out$objects[[1]]), rep(1L, 3))
-
-    # Behaves with multiple entries.
-    B <- random_ranges(10)
-    N3 <- 10
-    k1 <- sample(length(B), N3, replace=TRUE)
-    k2 <- sample(length(B), N3, replace=TRUE)
-    k3 <- sample(length(B), N3, replace=TRUE)
-
-    ir4 <- IndexedRelations(list(k1, k2, k3), list(B), mapping=rep(1L, 3))
-    out <- standardizeFeatureSets(ir1, list(ir3, ir4))
-
-    expect_as_if(out$x, ir1)
-    expect_as_if(out$objects[[1]], ir3)
-    expect_as_if(out$objects[[2]], ir4)
-
-    expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
-    expect_identical(featureSets(out$x), featureSets(out$objects[[2]]))
-    expect_identical(length(featureSets(out$x)), 1L)
-
-    expect_identical(mapping(out$x), rep(1L, 3))
-    expect_identical(mapping(out$objects[[1]]), rep(1L, 3))
-})
-
-test_that("standardizeFeatureSets works correctly with cross-mapping", {
-    # Same feature sets. 
-    ir1 <- IndexedRelations(list(i1, i2, i3), list(r3, r3, r3))
-    ir2 <- IndexedRelations(list(i1, i2, i3), list(r3), mapping=rep(1L, 3))
-
-    out <- standardizeFeatureSets(ir1, list(ir2))
-    expect_identical(ir1, out$x)
-    expect_as_if(ir2, out$objects[[1]])
-    expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
-    expect_identical(length(featureSets(out$x)), 3L)
-
-    expect_identical(mapping(out$x), 1:3)
-    expect_identical(mapping(out$objects[[1]]), 1:3)
-
-    # Different feature sets.
-    A <- random_ranges(30)
-    N2 <- 50
-    j1 <- sample(length(A), N2, replace=TRUE)
-    j2 <- sample(length(A), N2, replace=TRUE)
-    j3 <- sample(length(A), N2, replace=TRUE)
-
-    irx <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
-    iry <- IndexedRelations(list(j1, j2, j3), list(A), mapping=rep(1L, 3))
-    out <- standardizeFeatureSets(irx, list(iry))
-
-    expect_as_if(irx, out$x)
-    expect_as_if(iry, out$objects[[1]])
-    expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
-    expect_identical(length(featureSets(out$x)), 3L)
-
-    expect_identical(mapping(out$x), 1:3)
-    expect_identical(mapping(out$objects[[1]]), 1:3)
-})
-
-test_that("standardizeFeatureSets responds to changes ONLY in mapping", {
-    ir1 <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
-    ir2 <- IndexedRelations(list(i3, i2, i1), list(r1, r2, r3), mapping=3:1)
-
-    out <- standardizeFeatureSets(ir1, list(ir2))
-    expect_as_if(ir1, out$x)
-    expect_as_if(ir2, out$objects[[1]])
-
-    expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
-    expect_identical(length(featureSets(out$x)), 3L)
-
-    expect_identical(mapping(out$x), 1:3)
-    expect_identical(mapping(out$objects[[1]]), 1:3)
 })
 
 ################################
@@ -214,41 +101,23 @@ test_that("standardizeFeatureSets works correctly with cleaning", {
     expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
     expect_false(any(unlist(lapply(featureSets(out$x), duplicated))))
     expect_false(any(unlist(lapply(featureSets(out$x), is.unsorted))))
-
-    # With singles.
-    A <- INFLATE(random_ranges(30))
-    N2 <- 50
-    j1 <- sample(length(A), N2, replace=TRUE)
-    j2 <- sample(length(A), N2, replace=TRUE)
-    j3 <- sample(length(A), N2, replace=TRUE)
-
-    irx <- IndexedRelations(list(j1, j2, j3), list(A), mapping=rep(1L, 3))
-    iry <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
-    out <- standardizeFeatureSets(irx, list(iry), clean=TRUE)
-
-    expect_as_if(irx, out$x)
-    expect_as_if(iry, out$objects[[1]])
-    expect_identical(featureSets(out$x), featureSets(out$objects[[1]]))
-    expect_false(any(unlist(lapply(featureSets(out$x), duplicated))))
-    expect_false(any(unlist(lapply(featureSets(out$x), is.unsorted))))
 })
 
 test_that("cleanFeatureSets works as expected", {
-    # Same feature set.
     ir1 <- IndexedRelations(list(i1, i2, i3), list(INFLATE(r1), INFLATE(r2), INFLATE(r3)))
     out <- cleanFeatureSets(ir1)
     expect_as_if(ir1, out)
     expect_false(any(unlist(lapply(featureSets(out), duplicated))))
     expect_false(any(unlist(lapply(featureSets(out), is.unsorted))))
 
-    # Different feature set.
+    # Copies of the same feature set.
     A <- INFLATE(random_ranges(30))
     N2 <- 50
     j1 <- sample(length(A), N2, replace=TRUE)
     j2 <- sample(length(A), N2, replace=TRUE)
     j3 <- sample(length(A), N2, replace=TRUE)
 
-    ir3 <- IndexedRelations(list(j1, j2, j3), list(A), mapping=rep(1L, 3))
+    ir3 <- IndexedRelations(list(j1, j2, j3), list(A, A, A))
     out <- cleanFeatureSets(ir3)
     expect_as_if(ir3, out)
     expect_false(any(unlist(lapply(featureSets(out), duplicated))))

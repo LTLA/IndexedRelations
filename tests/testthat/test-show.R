@@ -23,7 +23,7 @@ test_that("show method works correctly with named features", {
     rel <- IndexedRelations(list(A=i1, B=i2, C=i3), list(r1, r2, r3))
     show(rel)
 
-    featureSetNames(rel) <- c("X", "Y", "Z") # should have no effect.
+    partnerNames(rel) <- c("X", "Y", "Z") 
     show(rel)
 
     names(rel) <- sprintf("RELATION_%i", seq_along(rel))
