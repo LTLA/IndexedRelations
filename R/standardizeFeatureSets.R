@@ -101,9 +101,6 @@ standardizeFeatureSets <- function(x, objects, clean=FALSE)
     list(x=x, objects=objects)
 }
 
-.check_equality <- function(ref, others) {
-}
-
 .reindex_partners <- function(x, remap) {
     cur.partners <- partners(x)
     for (k in seq_len(ncol(cur.partners))) {
