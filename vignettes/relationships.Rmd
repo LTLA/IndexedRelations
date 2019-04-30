@@ -156,7 +156,8 @@ sort(rel)
 ```
 
 It is also possible to match relationships across different `IndexedRelations` objects.
-Note that all of these methods are agnostic to the identities of the underlying feature sets, as long as the feature classes are comparable across objects.
+Note that all of these methods are agnostic to the identities of the underlying feature sets, 
+as long as the same classes of features are used in the same order across different objects.
 
 ```{r}
 m <- match(rel, scrambled)
@@ -180,6 +181,56 @@ This provides a quick and general method to "realize" the indices into the partn
 
 ```{r}
 as(rel, "DataFrame")
+```
+
+# Advanced manipulation
+
+The `rearrangePartners()` function can reorder, drop or duplicate partners:
+
+```{r}
+# Duplicate partner
+rearrangePartners(rel, c(1,1,2))
+
+# Swap partners
+rearrangePartners(rel, c(2,1))
+
+# Drop partner
+rearrangePartners(rel, 2)
+```
+
+Developers may find `standardizeFeatureSets` useful to synchronize feature sets across `IndexedRelations` instances.
+This allows downstream procedures to compare integer indices directly for greater efficiency.
+
+```{r}
+# Setting up an alternative object:
+gr2 <- GRanges(sample(1:21, 50, replace=TRUE),
+    IRanges(sample(1e8, 50, replace=TRUE), width=10))
+ir2 <- IRanges(sample(1000, 50, replace=TRUE), width=5)
+rel2 <- IndexedRelations(list(gr2, ir2))
+
+identical(featureSets(rel), featureSets(rel2))
+out <- standardizeFeatureSets(rel, list(rel2))
+identical(featureSets(out$x), featureSets(out$objects[[1]]))
+
+# ... though the partnering features are still the same.
+stopifnot(all(out$x==rel))
+```
+
+The `cleanFeatureSets()` function will remove redundant features and sort each feature set in an `IndexedRelations` instance.
+This enables direct comparison of indices across relationships for a given partner, e.g., for sorting.
+
+```{r}
+rel3 <- cleanFeatureSets(rel)
+featureSets(rel3)[[2]]
+```
+
+The `dropUnusedFeatures()` function will discard features in each set that are not used, 
+much like `droplevels()` does for levels of factors.
+This is useful for saving memory prior to serialization to file but is generally unnecessary for use within an R session - 
+see `?dropUnusedFeatures` for some commentary on this matter.
+
+```{r}
+rel4 <- dropUnusedFeatures(rel)
 ```
 
 # Session info
