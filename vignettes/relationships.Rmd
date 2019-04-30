@@ -3,7 +3,7 @@ title: Representing 'omics relationships with _IndexedRelations_
 author:
 - name: Aaron Lun
   email: infinite.monkeys.with.keyboards@gmail.com
-date: "Revised: 27 April 2019"
+date: "Revised: 30 April 2019"
 output:
   BiocStyle::html_document:
     toc_float: true
@@ -25,7 +25,7 @@ opts_chunk$set(error=FALSE, message=FALSE, warning=FALSE)
 The `r Biocpkg("IndexedRelations")` package implements the `IndexedRelations` class for representing 'omics relationships.
 This can be used for physical interactions, regulatory relationships or other associations involving any number of features.
 The `IndexedRelations` class is primarily intended as a base class from which concrete subclasses can be derived for specific contexts.
-For example, the `r Biocpkg("GenomicInteractions")` package derives an subclass to represent physical interactions between genomic intervals.
+For example, the `r Biocpkg("GenomicInteractions")` package derives a subclass to represent physical interactions between genomic intervals.
 
 # The `IndexedRelations` class
 
