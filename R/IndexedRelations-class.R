@@ -289,7 +289,7 @@ setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
 })
 
 #' @importFrom BiocGenerics match
-#' @importFrom S4Vectors mcols bindROWS
+#' @importFrom S4Vectors mcols bindROWS ROWNAMES
 .combine_features <- function(incoming, ref) {
     if (identical(incoming, ref)) {
         m <- seq_along(incoming)
@@ -298,7 +298,7 @@ setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
         # contains names (discarded if they aren't added to 'ref')
         # or if 'ref' contains names (expands NULL names in 'incoming'
         # to empty characters, which isn't quite right).
-        if (!is.null(names(incoming)) || !is.null(names(ref))) {
+        if (!is.null(ROWNAMES(incoming)) || !is.null(ROWNAMES(ref))) {
             warning("potential modification of names in reorganized feature sets")
         }
 
