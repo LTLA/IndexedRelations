@@ -63,11 +63,6 @@
 #' Values in \code{...} are ignored.}
 #' }
 #'
-#' @section Setter methods for feature sets:
-#' In the following code snippets, \code{x} is a IndexedRelations object.
-#' \describe{
-#' }
-#'
 #' @section Other setter methods:
 #' \code{featureSets(x) <- value} replaces the feature sets in an IndexedRelations instance \code{x} with the \linkS4class{List} \code{value}.
 #' \code{value} should have the same length as the original \code{featureSets(x)}.

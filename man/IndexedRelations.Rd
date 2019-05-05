@@ -91,20 +91,13 @@ by using \code{x$name}.
 
 In the following code snippets, \code{x} is a IndexedRelations object.
 \describe{
-\item{\code{partners(x) <- value}:}{Replaces the partner indices with \code{value}.
+\item{\code{partners(x) <- value}:}{Replaces the partner indices with a \linkS4class{DataFrame} \code{value}.
 \code{value} should have the same number of columns as \code{partners(x)},
 and should contain integer indices that point to valid entries of the corresponding feature set.}
 \item{\code{partnerNames(x) <- value}:}{Replaces the names used for each partner with \code{value}, a character vector or \code{NULL}.}
 \item{\code{partnerFeatures(x, type, ...) <- value}:}{Replaces the partners specified by \code{type} with new features in \code{value}.
 \code{type} can be an integer scalar or a string if the partners are named.
 Values in \code{...} are ignored.}
-}
-}
-
-\section{Setter methods for feature sets}{
-
-In the following code snippets, \code{x} is a IndexedRelations object.
-\describe{
 }
 }
 
