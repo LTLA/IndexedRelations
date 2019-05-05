@@ -54,7 +54,7 @@
 #' @section Setter methods for partners:
 #' In the following code snippets, \code{x} is a IndexedRelations object.
 #' \describe{
-#' \item{\code{partners(x) <- value}:}{Replaces the partner indices with \code{value}.
+#' \item{\code{partners(x) <- value}:}{Replaces the partner indices with a \linkS4class{DataFrame} \code{value}.
 #' \code{value} should have the same number of columns as \code{partners(x)},
 #' and should contain integer indices that point to valid entries of the corresponding feature set.}
 #' \item{\code{partnerNames(x) <- value}:}{Replaces the names used for each partner with \code{value}, a character vector or \code{NULL}.}
@@ -249,8 +249,11 @@ setValidity2("IndexedRelations", function(object) {
 # Getters and setters: partners #
 #################################
 
+# An internal function with no overhead.
+.partners <- function(x) x@partners
+
 #' @export
-setMethod("partners", "IndexedRelations", function(x) x@partners)
+setMethod("partners", "IndexedRelations", .partners)
 
 #' @export
 setMethod("partnerNames", "IndexedRelations", function(x) names(partners(x)))
@@ -268,16 +271,24 @@ setMethod("partnerFeatures", "IndexedRelations", function(x, type) {
     cur.store[ids]
 })
 
-#' @export
-setReplaceMethod("partners", "IndexedRelations", function(x, value) {
+# An internal version with no overhead.
+setReplaceMethod(".partners", "IndexedRelations", function(x, value) {
     x@partners <- value
     x
 })
 
 #' @export
+#' @importClassesFrom S4Vectors DataFrame
+setReplaceMethod("partners", "IndexedRelations", function(x, value) {
+    .partners(x) <- as(value, "DataFrame")
+    validObject(x)
+    x
+})
+
+#' @export
 setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
-    names(partners(x)) <- value
-    names(featureSets(x)) <- value
+    names(.partners(x)) <- value
+    names(.featureSets(x)) <- value
     x
 })
 
@@ -320,8 +331,8 @@ setReplaceMethod("partnerFeatures", "IndexedRelations", function(x, type, ..., v
         type <- match(type, partnerNames(x))
     }
     U <- unique(value)
-    featureSets(x)[[type]] <- U
-    partners(x)[[type]] <- match(value, U)
+    .featureSets(x)[[type]] <- U
+    .partners(x)[[type]] <- match(value, U)
     x
 })
 
@@ -329,7 +340,7 @@ setReplaceMethod("partnerFeatures", "IndexedRelations", function(x, type, ..., v
 # Getters and setters: featureSets #
 ####################################
 
-# An unnamed version with no overhead.
+# An internal version with no overhead.
 .featureSets <- function(x) x@featureSets
 
 #' @export
@@ -339,9 +350,17 @@ setMethod("featureSets", "IndexedRelations", function(x) {
     out
 })
 
-#' @export
-setReplaceMethod("featureSets", "IndexedRelations", function(x, value) {
+# An internal version with no overhead.
+setReplaceMethod(".featureSets", "IndexedRelations", function(x, value) {
     x@featureSets <- value
+    x
+})
+
+#' @export
+#' @importClassesFrom S4Vectors List
+setReplaceMethod("featureSets", "IndexedRelations", function(x, value) {
+    .featureSets(x) <- as(value, "List")
+    validObject(x)
     x
 })
 
@@ -388,6 +407,6 @@ setMethod("names", "IndexedRelations", function(x) rownames(partners(x)))
 
 #' @export
 setReplaceMethod("names", "IndexedRelations", function(x, value) {
-    rownames(partners(x)) <- value
+    rownames(.partners(x)) <- value
     x
 })

@@ -93,9 +93,9 @@ standardizeFeatureSets <- function(x, objects, clean=FALSE)
         } 
     }
 
-    featureSets(x) <- ref.features
+    .featureSets(x) <- ref.features
     for (i in seq_along(objects)) {
-        featureSets(objects[[i]]) <- ref.features
+        .featureSets(objects[[i]]) <- ref.features
     }
 
     list(x=x, objects=objects)
@@ -106,7 +106,7 @@ standardizeFeatureSets <- function(x, objects, clean=FALSE)
     for (k in seq_len(ncol(cur.partners))) {
         cur.partners[,k] <- remap[[k]][cur.partners[,k]]
     }
-    partners(x) <- cur.partners
+    .partners(x) <- cur.partners
     x
 }
 
@@ -166,7 +166,7 @@ cleanFeatureSets <- function(x) {
     }
 
     x <- .reindex_partners(x, remap)
-    featureSets(x) <- fsets
+    .featureSets(x) <- fsets
     x
 }
 

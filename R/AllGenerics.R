@@ -24,3 +24,8 @@ setGeneric("featureSets", function(x) standardGeneric("featureSets"))
 
 #' @export
 setGeneric("featureSets<-", function(x, value) standardGeneric("featureSets<-"))
+
+# For internal use only.
+setGeneric(".partners<-", function(x, value) standardGeneric(".partners<-"))
+
+setGeneric(".featureSets<-", function(x, value) standardGeneric(".featureSets<-"))
