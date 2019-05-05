@@ -90,7 +90,7 @@ test_that("names getting and setting works", {
 })
 
 ###################
-# Getters/setters #
+# Partner getters #
 ###################
 
 test_that("partner getter works correctly", {
@@ -113,6 +113,10 @@ test_that("partner getter works correctly", {
     expect_identical(partnerFeatures(ir, "A"), r1[i1])
     expect_identical(partnerFeatures(ir, "B"), r2[i2])
     expect_identical(partnerFeatures(ir, "C"), r3[i3])
+
+    # Works with empty inputs.
+    expect_identical(partners(ir[0]), partners(ir)[0,])
+    expect_identical(partnerFeatures(ir[0], 1), partnerFeatures(ir, 1)[0,])
 })
 
 test_that("partner setter works correctly (same feature set)", {
@@ -167,12 +171,51 @@ test_that("partner setter works correctly (different feature set)", {
     # Handles metadata.
     new.ranges <- sample(random_ranges(15), length(ir), replace=TRUE) 
     mcols(new.ranges)$blah <- runif(length(new.ranges))
+
     expect_warning(partnerFeatures(ir, 1) <- new.ranges, NA)
     expect_identical(colnames(mcols(featureSets(ir)[[1]])), "blah")
-#    expect_warning(partnerFeatures(ir, 3)[chosen] <- new.ranges[chosen], NA)
+
+    expect_warning(partnerFeatures(ir, 3)[chosen] <- new.ranges[chosen], NA)
 })
 
-test_that("feature getter/setter works correctly", {
+test_that("partner setter handles odd inputs correctly", {
+    ir <- IndexedRelations(list(i1, i2, i3), list(r1, r2, r3))
+
+    # Complains with invalid values.
+    alt <- ir
+    expect_error(partners(alt)[,1] <- -1L, "out-of-bounds")
+    expect_error(partners(alt)[,1] <- 1000L, "out-of-bounds")
+    expect_error(partners(alt)[,1] <- NA_integer_, "out-of-bounds")
+
+    # Works with empty inputs.
+    alt <- ir[0]
+    partners(alt[0])[0,] <- integer(0)
+    expect_identical(alt, ir[0])
+
+    partnerFeatures(alt[0], 2) <- IRanges()
+    expect_identical(alt, ir[0])
+
+    # Fails if you try to give it another class.
+    library(GenomicRanges)
+    expect_error(partnerFeatures(alt[0], 2) <- GRanges(), "failed to coerce")
+})
+
+###################
+# Feature getters #
+###################
+
+test_that("feature getter works correctly", {
+    ir <- IndexedRelations(list(i1, i2, i3), list(A=r1, B=r2, C=r3))
+    expect_identical(featureSets(ir)[[1]], r1)
+    expect_identical(featureSets(ir)[[2]], r2)
+    expect_identical(featureSets(ir)[[3]], r3)
+
+    # Respects names.
+    partnerNames(ir) <- c("X", "Y", "Z")
+    expect_identical(names(featureSets(ir)), c("X", "Y", "Z"))
+})
+
+test_that("feature setter works correctly", {
     ir <- IndexedRelations(list(i1, i2, i3), list(A=r1, B=r2, C=r3))
 
     featureSets(ir)[[1]] <- resize(featureSets(ir)[[1]], width=100)
@@ -183,14 +226,18 @@ test_that("feature getter/setter works correctly", {
     mcols(featureSets(ir)[[2]])$blah <- X
     expect_identical(mcols(partnerFeatures(ir, 2))$blah, X[i2])
 
-    # Respects names.
-    partnerNames(ir) <- c("X", "Y", "Z")
-    expect_identical(names(featureSets(ir)), c("X", "Y", "Z"))
-
     stuff <- rnorm(length(r3))
-    mcols(featureSets(ir)$Z)$stuff <- stuff
-    expect_identical(mcols(featureSets(ir)$Z)$stuff, stuff)
+    mcols(featureSets(ir)$X.3)$stuff <- stuff
+    expect_identical(mcols(featureSets(ir)$X.3)$stuff, stuff)
+
+    # Complains with invalid values.
+    expect_error(featureSets(ir) <- featureSets(ir)[1:2], "invalid class")
+    expect_error(featureSets(ir) <- endoapply(featureSets(ir), "[", 0), "out-of-bounds")
 })
+
+#################
+# Other getters #
+#################
 
 test_that("metadata getting and setting works correctly", {
     ir <- IndexedRelations(list(i1, i2, i3), list(A=r1, B=r2, C=r3))
@@ -198,8 +245,10 @@ test_that("metadata getting and setting works correctly", {
     mcols(ir)$stuff <- X
 
     expect_identical(ir$stuff, X)
+
     ir$stuff <- X+1
     expect_identical(ir$stuff, X+1)
+
     ir$stuff <- NULL
     expect_identical(ir$stuff, NULL)
 })
