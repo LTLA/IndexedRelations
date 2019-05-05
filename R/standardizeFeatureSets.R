@@ -110,13 +110,13 @@ standardizeFeatureSets <- function(x, objects, clean=FALSE)
     x
 }
 
-#' @importFrom S4Vectors order 
+#' @importFrom S4Vectors order extractROWS
 #' @importFrom BiocGenerics duplicated
 .sort_and_order <- function(features) {
     o <- order(features)
-    features <- features[o]
+    features <- extractROWS(features, o)
     is.unique <- !duplicated(features)
-    features <- features[is.unique]
+    features <- extractROWS(features, is.unique)
     remap <- cumsum(is.unique)
     remap[o] <- remap
     list(remap=remap, features=features)

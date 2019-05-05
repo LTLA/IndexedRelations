@@ -228,7 +228,7 @@ setValidity2("IndexedRelations", function(object) {
 
         if (!failed) {
             cur.store <- itr[[i]]
-            if (.oob(current, length(cur.store))) {
+            if (.oob(current, NROW(cur.store))) {
                 msg <- c(msg, sprintf("column %i of 'partners' contains out-of-bounds indices", i))
             }
         }
@@ -257,13 +257,14 @@ setMethod("partnerNames", "IndexedRelations", function(x) names(partners(x)))
 setMethod("npartners", "IndexedRelations", function(x) ncol(partners(x)))
 
 #' @export
+#' @importFrom S4Vectors extractROWS
 setMethod("partnerFeatures", "IndexedRelations", function(x, type) {
     if (is.character(type)) {
         type <- match(type, partnerNames(x))
     }
     ids <- partners(x)[[type]]
     cur.store <- .featureSets(x)[[type]]
-    cur.store[ids]
+    extractROWS(cur.store, ids)
 })
 
 # An internal version with no overhead.
@@ -288,7 +289,7 @@ setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
 })
 
 #' @importFrom BiocGenerics match
-#' @importFrom S4Vectors mcols
+#' @importFrom S4Vectors mcols bindROWS
 .combine_features <- function(incoming, ref) {
     if (identical(incoming, ref)) {
         m <- seq_along(incoming)
@@ -313,8 +314,10 @@ setReplaceMethod("partnerNames", "IndexedRelations", function(x, value) {
         if (any(lost)) {
             lost.values <- incoming[lost]
             lost.ref <- unique(lost.values)
-            m[lost] <- length(ref) + match(lost.values, lost.ref)
-            ref <- c(ref, lost.ref) # strictly appends, to avoid invaliding indices to 'ref'.
+            m[lost] <- NROW(ref) + match(lost.values, lost.ref)
+
+            # strictly appends, to avoid invaliding indices to 'ref'.
+            ref <- bindROWS(ref, list(lost.ref))
         }
     }
     list(id=m, ref=ref)
