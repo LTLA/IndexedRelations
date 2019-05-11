@@ -1,15 +1,23 @@
 Package: IndexedRelations
-Version: 0.99.0
-Date: 2019-05-05
+Version: 0.99.1
+Date: 2019-05-11
 Title: Representing Indexed Relationships Between Features
 Authors@R: person("Aaron", "Lun", role = c("aut", "cre"), 
     email = "infinite.monkeys.with.keyboards@gmail.com")
-Depends: S4Vectors
-Imports: BiocGenerics, methods
-Suggests: testthat, knitr, rmarkdown, BiocStyle, GenomicRanges,
+Depends: 
+    S4Vectors
+Imports: 
+    BiocGenerics, 
+    methods
+Suggests: 
+    testthat, 
+    knitr, 
+    rmarkdown, 
+    BiocStyle, 
+    GenomicRanges,
     IRanges
 biocViews: Infrastructure, DataRepresentation
-Description: Provides the IndexedRelations class and its derivatives
+Description: Provides the IndexedRelations class and methods 
     for representing and manipulating 'omics relationships in a
     memory-efficient format based on indices.
 License: GPL-3
